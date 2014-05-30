@@ -2,13 +2,12 @@
 import scipy.stats
 import numpy
 import copy
+import matplotlib as plt
 
 def move(a,b,i): #перемещение из одного списка в другой
     a.append(i)
     b.remove(i)
-def makeDict(a1=1,a2=1,l1=1,l2=1):
-    s = {'a1':a1,'a2':a2,'l1':l1,'l2':l2}
-    return s
+
 
 class cell:
     """ Класс клетка.
@@ -21,7 +20,7 @@ class cell:
         self.action_list = [] #вектор событий с данной клеткой
         self.time_list = [] #вектор последовательности времени до событий
         if s == None:
-            self.s = makeDict()
+            pass#self.s = programm.makeDict()
         else:
             self.s = s
     def action(self):
@@ -34,6 +33,8 @@ class cell:
         return i #возвращаем идентификатор события
     def getCumTime(self):
         return sum(self.time_list)
+    def tst():
+        print ("test")
 
         
 class clone:
@@ -41,15 +42,17 @@ class clone:
         self.live_cells = []
         self.cell_arch = []
         self.live_cells.append(cell(s))
+        self.actions=[]
+        self.track = []
     def tik(self):
-        actions=[]
         for i in self.live_cells:
             act = i.action()
-            actions.append(act)
+            self.actions.append(act)
             if act == 0:
                 self.live_cells.append(copy.deepcopy(i))
             if act == 1:
                 move(self.cell_arch, self.live_cells, i)
+        self.track.append(len(self))
     def NTiks(self, n):
         for i in range(n):
             self.tik()
@@ -71,13 +74,40 @@ class clone:
 class core:
     def __init__(self):
         self.CurClone = clone()
+        self.track = []
     def newClone(self,s):
         self.CurClone = clone(s)
-    def iterate(self,n,s):
+    def iterate(self,n,s=None):
+        self.product = []       
+        self.result = []
         for i in range(n):
             self.newClone(s)
             self.CurClone.do()
-            product.append(self.CurClone.getProductValue())
-            
+            self.product.append(self.CurClone.getProductValue()) #прицепляем объем продукта
+            self.result.append(self.CurClone.isAlive()) #прицепляем исход запуска клона
+            self.track.append(self.CurClone.track)
+    def plotTracks(self):
+        for i in self.track: 
+            plt.pyplot.plot(i)
+    def GetMeanRes(self):
+        return numpy.mean(self.result)
+    def GetMedRes(self):
+        return numpy.median(self.result)
+    def GetMeanProd(self):
+        return numpy.mean(self.product)
+    def GetMedProd(self):
+        return numpy.median(self.product)
+
+class programm:
+    def makeDict(a1=1,a2=1,l1=1,l2=1):
+        s = {'a1':a1,'a2':a2,'l1':l1,'l2':l2}
+        return s
+
+class experiment:
+    def __init__(self, f = None):
+        if f == None:
+            pass
+        
+        
 
             
