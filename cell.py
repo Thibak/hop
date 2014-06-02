@@ -23,7 +23,7 @@ class cell:
         Есть реальный вариант наследовать этому: https://pypi.python.org/pypi/bintrees/2.0.1          
         Бинарное дерево можно использовать как структуру данных в клоне, и хранить в клетке только информацию о количестве делений
         а историю и время хранить в Клоне, в нодах дерева. Ожнако это не нужно пока нет проблемы с памятью
-       и тут немного о Вейбулеи рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
+       и тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
           
           """
     def __init__(self, s=None):
@@ -263,10 +263,18 @@ class experiment:
         
         if p == None:
             self.p = programm()
+        else:
+            self.p = p
             
     def setDict(self,p):
         self.p = p
     def do(self):
+        '''
+        Запускаем расчет по выбраному словарю
+    
+        Аргументов не требуется
+        '''
+        print('Start calculating: /n')
         self.p.isCalc=True
         i = 0
         for s in self.p.element:
@@ -293,7 +301,7 @@ class experiment:
         # сначала надо вытащить из словаря итерируемые значения
         #if resName = 'all'        
         
-        if self.p.isCalc:
+        if not self.p.isCalc:
             print('ATTENTION, object is unCalc')
         
         if param2 == None:
@@ -312,7 +320,7 @@ class experiment:
             axes.set_ylabel(param2)
             axes.set_zlabel(resName)            
             
-          #  axes.scatter3D(x,y,z, c=z)
+            axes.scatter3D(x,y,z, c=z)
             
           #  xi = numpy.linspace(0,1,100)
           #  yi = numpy.linspace(0,1,100)
