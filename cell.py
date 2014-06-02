@@ -144,7 +144,12 @@ class programm:
                 А сохранять только словарь из всего объекта не правильно, т.к. кроме словаря у меня имеется несколько объектов с важной информацией
                  
                 ВОТ И ДУМАЙ...
-                
+                Решение: Оказывается Pickleзация объекта происходит через сохранение
+                (внимание!) СЛОВАРЯ __dict__ в котором хранятся переменные объекта.
+                Что мне собственно и нужно. Пишем метод для сохранения и извлечения __dict__
+                Работать будет так.  Если нужно загрузить словарь, то создаем пустой объект
+                и запускаем метод Load. ВАЖНО сделать предупреждение, что существующий 
+                метод обнуляется
                 
         во вторых CSV 
             плюсы
@@ -224,14 +229,16 @@ class programm:
     def save(self,name):
         if self.isCalc:
             with open(name + '.rst', 'wb') as f:
-                pickle.dump(self, f)
+                pickle.dump(self.__dict__, f,2)
         else:
             with open(name + '.dic', 'wb') as f:
-                pickle.dump(self, f)
-    def open(self,name):
+                pickle.dump(self.__dict__, f,2)
+    def load(self,name):
         with open(name, 'rb') as f:
-            p = pickle.load(f)
-        if 
+            loaded_dict = pickle.load(f)
+            f.close()          
+            self.__dict__.update(loaded_dict) 
+         
                        
         
 
