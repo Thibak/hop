@@ -1,8 +1,9 @@
 # coding: utf8
-import scipy.stats
+#import scipy.stats
 import numpy
 import copy
 import matplotlib as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def move(a,b,i): #перемещение из одного списка в другой
     a.append(i)
@@ -83,8 +84,8 @@ class core:
     def __init__(self):
         self.CurClone = clone()
         self.track = []
-    def newClone(self,s):
-        self.CurClone = clone(s)
+   # def newClone(self,s)
+#        self.CurClone = clone(s)"""
     def iterate(self,n,s=None):
         self.product = []       
         self.result = []
@@ -97,6 +98,7 @@ class core:
     def plotTracks(self):
         for i in self.track: 
             plt.pyplot.plot(i)
+        plt.show()
     def GetMeanRes(self):
         return numpy.mean(self.result)
     def GetMedRes(self):
@@ -109,40 +111,99 @@ class core:
 class programm:
     """
     Программа вычислений.
-      видимо мы должны иметь хитрую структуру из многомерных словарей, 
-      где описываются имена клонов и их количество, и словари для них. 
-      Количество итерации не должно отличаться для отдальных элементов. (если оно не адаптивное!!!)
-        храним тут:
             iter -- количество итераций для каждой точки
-            s -- вектор словарей для деления
-    кроме того имеем конструкторы всяких подсущностей плана эксперимента
-    [{'sth':[1,1,1], 'sthe':[1,1]}]
-    addAttr(self, '____', vk = [], n = 1) -- добавить атрибут, с вектором (можно загнать пустой), если надо то много раз
-
-            
+            element -- вектор словарей -- задание на эксперимент
+      Видимо структура объекта такая, до первого запуска операции push, 
+      которая загоняет словарь в стек, мы можем добавлять атрибуты, 
+      после этого мы блокируем объект. Кроме того надо написать модули сохранения и извлечения словарей.
+      
+      После обработки программы каждое задание становилтся экспериментом, 
+      т.е. дополняется результатами. После этого мы должны мочь его так же сохранить
+      
+      self.dict.keys() -- значения ключей
+      
+      для присвоения нового атрибута используем      
+      p.dict['имя']=значение
+      НЕ ИСПОЛЬЗУЕМ, ИНАЧЕ БЛОКИРОВКА НЕ БУДЕТ РАБОТАТЬ      
+      
+      addAttr
+         [[[a(i),k] for i in range(4)] for k in range(4)]   
     """
+    
     def __init__(self,f="default"):
-        attrList = {'dict':1}
+        self.element = []
+        self.block = False
         if f == "default":
             self.itr = 1000
-            
+            self.dict = {'a1':1,'a2':1,'l1':1,'l2':1}
+        
+    def push(self):
+        self.block = True
+        self.element.append(copy.deepcopy(self.dict))
+        
+    def addAttr(self, name, value):
+        """ Добавление атрибута к словарю """
+        if self.block:
+            print ('attempt rejected')
+        else:
+            self.dict[name]=value
+    def chAttr(self,name, value):
+        if name in self.dict.keys():
+            self.dict[name]=value
+        else:
+            print ('No such name')
+    def keys(self): self.dict.keys()
     def makeDict(self, a1=1,a2=1,l1=1,l2=1):
-        s = {'a1':a1,'a2':a2,'l1':l1,'l2':l2}
-        return s
-    def addAttr(self, strg, vk = [], n = 1):
-        pass
+        return self.dict
+        
+    # высокоуровневые операции по формированию 
+    def makeGrid(self, name1, start1, stop1, step1, name2, start2, stop2, step2):
+        a = frange(start1, stop1, step1)
+        b = frange(start2, stop2, step2)
+        for j in a:
+            for i in b:
+                self.chAttr(name1,j)
+                self.chAttr(name2,i)
+                self.push()
+  
+#        [[[self.addDict(i),k] for i in range(4)] for k in range(4)]  
+    def makeVec(self, name, start, stop, step):
+        a = frange(start, stop, step)
+        for i in a:
+            self.chAttr(name,i)
+            self.push()
+  
         
 
 class experiment:
     """ 
-    Это собственно программа читающая файл-программу-вычислений, представляющую собой
-    вектор пар команда-аргументы. Я последовательно читаю команды, и выполняю их с этими аргументами
-    ПРИЧЕМ! Это могут быть команды загрузки 
+    Объект эксперимент
     """
-    def __init__(self, f = None):
-        if f == None:
-            pass
+    def __init__(self, p = None):
+        self.c = core()
+        if p == None:
+            p = programm('default')
+            p.addDict(p.makeDict())
+    def do(self,p):
+        for e in p:
+            self.c.iterate(e)
+            
+            
+    def plot(self, param = 'result'):
+        # сначала надо вытащить из словаря итерируемые значения
+        x = [self.p.element[i][param] for i in range(len(self.p.element))] 
+        # а -- идентификатор итерируемого значения
         
+        # надо все результаты тоже загонять в словарь!!! И вытаскивать по той же конструкции
         
+        # затем 
+        fig = plt.figure()
+        axes = Axes3D(fig)
+        #axes.scatter3D(a,a,a)
+        axes.plot(x,y,z)
+        #axes.plot_wireframe(x, y, z)
+        fig.show()
+
+
 
             
