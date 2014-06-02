@@ -2,8 +2,8 @@
 #import scipy.stats
 import numpy
 import copy
+import pickle #загружаем и сохраняем данные
 import matplotlib as plt
-from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 from numpy import arange
 from matplotlib.mlab import griddata
@@ -129,8 +129,40 @@ class programm:
       p.dict['имя']=значение
       НЕ ИСПОЛЬЗУЕМ, ИНАЧЕ БЛОКИРОВКА НЕ БУДЕТ РАБОТАТЬ      
       
-      addAttr
-         [[[a(i),k] for i in range(4)] for k in range(4)]   
+    Внимание вопрос: как сохранять объекты? 
+        есть масса вариантов, 
+        
+  ----> во первых pickle как стандартная библиотека сохранения и извлечения объектов.
+        пока реализуем этот самый простой вариант. Тем более, что 
+            плюсы
+                нативность
+            минусы
+                читается только питоном же
+            Проблемы: 
+                все отлично читается и сохраняется, за исключением того, что загрузка самого себя вещь странная.
+                 весьма вероятно, что она не будет работать. 
+                А сохранять только словарь из всего объекта не правильно, т.к. кроме словаря у меня имеется несколько объектов с важной информацией
+                 
+                ВОТ И ДУМАЙ...
+                
+                
+        во вторых CSV 
+            плюсы
+                читаемость SASом 
+                читаемость и редактируемость руками
+            минусы
+                ненативность
+        в третьих XML
+            плюсы 
+            минусы
+        в четвертых JSON
+            плюсы 
+            минусы
+      по теме:
+          чтение и запись словаря в текстовый файл
+          http://stackoverflow.com/questions/11026959/python-writing-dict-to-txt-file-and-reading-dict-from-txt-file
+     
+      
     """
     
     def __init__(self,itr = 100):
@@ -188,7 +220,19 @@ class programm:
                 self.push()
         else:
             print ('No such name')
-  
+    # Подсистема сохранения и извлечения программы эксперимента
+    def save(self,name):
+        if self.isCalc:
+            with open(name + '.rst', 'wb') as f:
+                pickle.dump(self, f)
+        else:
+            with open(name + '.dic', 'wb') as f:
+                pickle.dump(self, f)
+    def open(self,name):
+        with open(name, 'rb') as f:
+            p = pickle.load(f)
+        if 
+                       
         
 
 class experiment:
@@ -196,6 +240,16 @@ class experiment:
     Объект эксперимент
         задачи: написать инициализацию по словарю
         написать вытакивалку имен параметров и результатов
+        
+        ВАЖНО!!! 
+        По факту система выполнения действий является ассинхронной (т.е. мы выполняем события не в хронологическом порядке),
+        в связи с чем мы не можем выполнять взаимодействия и обратные связи.
+        Для избежания этой проблемы необходимо создать централизованый стек (с сортировкой после каждого пуша) 
+        он должен принадлежать к обработчику, быть единым для всех клонов. 
+        Т.е. операцию итерирования мы изымаем из ведения клона. Может быть клон вобще должен быть атрибутом клетки, и не более
+        
+        НО ЭТО ПОЗЖЕ...
+
     """
     def __init__(self, p = None):
         self.c = core()
@@ -206,7 +260,7 @@ class experiment:
     def setDict(self,p):
         self.p = p
     def do(self):
-        self.p.isCalk=True
+        self.p.isCalc=True
         i = 0
         for s in self.p.element:
             i=i+1
@@ -232,6 +286,9 @@ class experiment:
         # сначала надо вытащить из словаря итерируемые значения
         #if resName = 'all'        
         
+        if self.p.isCalc:
+            print('ATTENTION, object is unCalc')
+        
         if param2 == None:
             y = [self.p.element[i][resName] for i in range(len(self.p.element))]
             x = [self.p.element[i][param1] for i in range(len(self.p.element))] 
@@ -248,16 +305,15 @@ class experiment:
             axes.set_ylabel(param2)
             axes.set_zlabel(resName)            
             
-            axes.scatter3D(x,y,z, c=z)
+          #  axes.scatter3D(x,y,z, c=z)
             
-            xi = numpy.linspace(0,1,100)
-            yi = numpy.linspace(0,1,100)
+          #  xi = numpy.linspace(0,1,100)
+          #  yi = numpy.linspace(0,1,100)
             # grid the data.
-            zi = griddata(x,y,z,xi,yi,interp='linear')
+          #  zi = griddata(x,y,z,xi,yi,interp='linear')
 
            # axes.plot_wireframe(X, Y, Z)
-            axes.plot_surface(xi,yi,zi)
-            
+          #  axes.plot_surface(xi,yi,zi)
             
         #    plt.pyplot.colorbar()
             #axes.plot(x,y,z)
