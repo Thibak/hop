@@ -4,7 +4,7 @@ Created on Tue Jun 03 10:43:33 2014
 
 @author: user
 """
-import cell
+from . import clone
     
 class Core:
     def __init__(self):
