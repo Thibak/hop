@@ -22,9 +22,11 @@ def benchmark(func):
 
 import matplotlib as plt
 from mpl_toolkits.mplot3d import Axes3D
-
 from matplotlib.mlab import griddata
 
+
+from hop.plan import Plan 
+from hop.core import Core
 
 
 class TaskManager:
@@ -44,10 +46,10 @@ class TaskManager:
 
     """
     def __init__(self, p = None):
-        self.c = core()
+        self.c = Core()
         
         if p == None:
-            self.p = programm()
+            self.p = Plan()
         else:
             self.p = p
             

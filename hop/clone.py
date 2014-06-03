@@ -4,15 +4,16 @@ Created on Tue Jun 03 22:00:25 2014
 
 @author: user
 """
+import copy
 
-from . import Cell
+from hop.cell import Cell
 
 class Clone:
     """ для дуплицирования объектов используется http://pymotw.com/2/copy/ """
     def __init__(self, s=None):
         self.live_cells = []
         self.cell_arch = []
-        self.live_cells.append(cell(s))
+        self.live_cells.append(Cell(s))
         self.actions=[]
         self.track = []
     def tik(self):

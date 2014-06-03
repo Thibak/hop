@@ -4,14 +4,14 @@ Created on Tue Jun 03 10:43:33 2014
 
 @author: user
 """
-from . import clone
+from hop.clone import Clone
     
 class Core:
     def __init__(self):
-        self.CurClone = clone()
+        self.CurClone = Clone()
         self.track = []
     def newClone(self,s):
-        self.CurClone = clone(s)
+        self.CurClone = Clone(s)
     def iterate(self,n,s=None):
         self.product = []       
         self.result = []

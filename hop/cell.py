@@ -2,10 +2,15 @@
 #import scipy.stats
 
 import numpy
-import copy
 
-from . import move  
-from . import Plan
+
+ 
+from hop.plan import Plan
+
+def move(a,b,i): #перемещение из одного списка в другой
+    a.append(i)
+    b.remove(i)
+
 
 class Cell:
     """ Класс клетка.
