@@ -8,6 +8,10 @@ import copy
 
 from hop.cell import Cell
 
+def move(a,b,i): #перемещение из одного списка в другой
+    a.append(i)
+    b.remove(i)
+
 class Clone:
     """ для дуплицирования объектов используется http://pymotw.com/2/copy/ """
     def __init__(self, s=None):

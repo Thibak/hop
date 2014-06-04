@@ -20,6 +20,7 @@ def benchmark(func):
     return wrapper
 """
 
+import time
 import matplotlib as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.mlab import griddata
@@ -61,19 +62,21 @@ class TaskManager:
     
         Аргументов не требуется
         '''
-        print('Start calculating: /n')
+        print('Start calculating at ' + str(time.ctime()))
+        t = time.clock()
         self.p.isCalc=True
         i = 0
         for s in self.p.element:
             i=i+1
             print("calculating " + str(i) + ' from ' + str(len(self.p.element)))
-            print s
+            #print s
             self.c.iterate(self.p.itr,s)
             s['MeanRes'] = self.c.GetMeanRes()
             s['MedRes'] = self.c.GetMedRes()
             s['MeanProd'] = self.c.GetMeanProd()
             s['MedProd'] = self.c.GetMedProd()
-        
+        print ('stop at ' + str(time.ctime()))
+        print ('take ' + str(time.clock()-t))
             
             
     def plot(self, resName, param1, param2 = None, t = 'p'):

@@ -7,10 +7,6 @@ import numpy
  
 from hop.plan import Plan
 
-def move(a,b,i): #перемещение из одного списка в другой
-    a.append(i)
-    b.remove(i)
-
 
 class Cell:
     """ Класс клетка.
@@ -43,8 +39,7 @@ class Cell:
         return i #возвращаем идентификатор события
     def getCumTime(self):
         return sum(self.time_list)
-    def tst():
-        print ("test")
+
 
         
 

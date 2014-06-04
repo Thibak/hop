@@ -4,6 +4,10 @@ Created on Tue Jun 03 10:43:33 2014
 
 @author: user
 """
+
+import numpy
+import matplotlib as plt
+
 from hop.clone import Clone
     
 class Core:
