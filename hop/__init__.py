@@ -1,1 +1,3 @@
-__all__ = ["cell", "clone", "Core","plan","taskmanager"]
+from hop.taskmanager import TaskManager
+print "hello"
+__all__ = ["cell", "clone", "core","plan","taskmanager"]

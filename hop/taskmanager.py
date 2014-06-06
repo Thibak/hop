@@ -29,6 +29,7 @@ from matplotlib.mlab import griddata
 from hop.plan import Plan 
 from hop.core import Core
 
+print ('test')
 
 class TaskManager:
     """ 
