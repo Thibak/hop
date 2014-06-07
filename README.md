@@ -9,10 +9,10 @@ hematopoiesys on Python
 
 - HOP 
 	- __init__.py
-	- core.py -- расчетное ядро
+	- model.py -- расчетное ядро
 		- cell
 		- clone
-	- TM.py -- менеджер задач, загружает ядро 
+	- core.py -- менеджер задач, загружает ядро 
 		- taskmeneger
 		- Plan
 	- graph.py
