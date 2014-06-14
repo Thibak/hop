@@ -25,13 +25,11 @@ import matplotlib as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.mlab import griddata
 
+import hop.model as model
 import copy
 import pickle #загружаем и сохраняем данные
 import numpy as np 
 
-
-from hop.plan import Plan 
-from hop.core import Core
 
 print ('test')
 
@@ -52,7 +50,7 @@ class TaskManager:
 
     """
     def __init__(self, p = None):
-        self.c = Core()
+        self.c = model.Core()
         
         if p == None:
             self.p = Plan()
