@@ -31,7 +31,7 @@ class Core:
          количество клонов
      
     """
-    def __init__(self, s):
+    def __init__(self):
         self.CurClone = Clone()
         self.track = []
     def newClone(self,s):
