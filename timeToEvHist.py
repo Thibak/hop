@@ -49,7 +49,8 @@ def a(ks = 1, ls = 1, l1 = 1, l0 = 1, gap = 7, t = 0):
 m = []
 l = []
 
-for k in range(100000):
+
+for k in range(1000):
 #    g1 = 10
 #    w1 = np.random.weibull(1)#weib(np.random.rand(1)[0], 1.,1.)#
  #   m.append(weib(np.random.rand(1)[0]*10, 1.,1.))
@@ -60,12 +61,18 @@ for k in range(100000):
 #    else:
 #        l.append(g1+(w1+w2+ws))
     
-    l.append(a(ks = 5, l1 = 1, t = 0, ls = 5, l0 = 5))
+    l.append([a(ks = 5, l1 = 1, t = 0, ls = 5, l0 = 5),k])
 
 
+#[l[k]['v'] for k in range(len(l))] так может быть организован сбор 
+#дополнительной инфы о данной клетке, например можно красить, и строить scatterplottы
 
+h = np.histogram(l["v"],200) # мне нужна только гистограмма (из 2-х возвращаемых параметров)
 #x = np.linspace(0, 2, 1000)
-plt.hist(l,200)
+mx = h[1][np.argmax(h['v'])]
+print(np.max(l[0]))
+print(mx)
+plt.hist(l[0],200)
 #plt.hist(m,100)
 
 #plt.plot(x, weib(x, 1, 1))
