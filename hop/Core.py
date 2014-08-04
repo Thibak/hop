@@ -27,15 +27,18 @@ from operator import attrgetter
 # с каждым тиком времени значение в очереди как-то изменяется, и надо понять как делать сортировку
 # Ответ: просто храним абсолютное время, т.е. время когда событие произойдет
 
-# Start Event Server
 
+# event server
 class EStack(list):
     def push(self, element):
-       super(EStack, self).append(element)
+       super(EStack, self).appendppend(element)
        super(EStack, self).sort(None, attrgetter('TimeWhen'), reverse=True) 
 
 # фактически переопределение стринга с возможностью определять новые поля. 
 # далее список (словарь?) возможных событий???
+# Представляет собой строку с дополнительными параметрами. 
+# в строке должно храниться имя типа события, например деление или миграция в след. слой. 
+# НЕ БУДЕМ ИСПОЛЬЗОВАТЬ
 class EvType():
     #t = str
     def __init__(self, *args, **kwargs):
@@ -45,21 +48,34 @@ class EvType():
     def __getattr__(self, name): 
         return getattr(self.s, name)  
 
+class EventServer():
+    def __init__(self):
+        self.eventsL = EStack()
+        self.CurTime = 0
+    def GetEvent(self):
+        e = self.eventsL.pop()
+        self.CurTime = e.TimeWhen
+        return e    
+    # функция создающее событие
+    def MakeEvent(self, Who, Type, attr, TimeTo):
+        self.eventsL.push(Event(Type, attr, Who, self.CurTime + TimeTo))    
+
 # формат Ивента. 
       # namedtuple. Неизменяемый тип данных, а после события нам оно и не надо
       # Ивент содержит три типа данных, Type, Who, TimeWhen
           # Type -- тип события, пара значений, тип и вектор доп. данных
-          # who -- кто, т.к. работаем с указателями, то просто event.cell = cell
+          # who -- кто, т.к. работаем с указателями, то просто event.who = cell
           # timeWhen -- время в абсолютных единицах, по большому счету пофигу в каких. Важна только сортировка
-Event = namedtuple ('Event', 'Type Who TimeWhen')
+Event = namedtuple ('Event', 'Type attr Who TimeWhen')
+# по хорошему Event определяет дальнейшие действия, и вопрос!!!
+# определять это по коду или по слову. Или каким-то идентификатором. Для меня пока не понятно.
+# можно определять список допустимых событий из типа объекта по словарю, хотя это финт ушами
 
-eventsL = EStack()
-CurTime = 0
+# Start Event Server
 
-def MakeEvent():
-    e = eventsL.pop()
-    #e.Who
-    pass # операциии с (e) 
+
+
+# вопрос, зачем мне эти декораторы???
 
 
 
