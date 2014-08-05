@@ -10,7 +10,7 @@ Created on Tue Jul 29 15:29:06 2014
 
 """
 import numpy
-from collections import namedtuple
+#from collections import namedtuple
 from operator import attrgetter
 
 #def StartServer():
@@ -32,7 +32,7 @@ from operator import attrgetter
 class EStack(list):
     def push(self, element):
        super(EStack, self).appendppend(element)
-       super(EStack, self).sort(None, attrgetter('TimeWhen'), reverse=True) 
+       super(EStack, self).sort(None, attrgetter('TimeWhen()'), reverse=True) 
 
 # фактически переопределение стринга с возможностью определять новые поля. 
 # далее список (словарь?) возможных событий???
@@ -48,6 +48,18 @@ class EvType():
     def __getattr__(self, name): 
         return getattr(self.s, name)  
 
+# формат Ивента. 
+      # namedtuple. Неизменяемый тип данных, а после события нам оно и не надо
+      # Ивент содержит три типа данных, Type, Who, TimeWhen
+          # Type -- тип события, пара значений, тип и вектор доп. данных
+          # who -- кто, т.к. работаем с указателями, то просто event.who = cell
+          # timeWhen -- время в абсолютных единицах, по большому счету пофигу в каких. Важна только сортировка
+#Event = namedtuple ('Event', 'Type attr Who TimeWhen')
+# механизм хороший, но предется отказаться от него в пользу хранения всех данных в самой клетке
+# по хорошему Event определяет дальнейшие действия, и вопрос!!!
+# определять это по коду или по слову. Или каким-то идентификатором. Для меня пока не понятно.
+# можно определять список допустимых событий из типа объекта по словарю, хотя это финт ушами
+
 class EventServer():
     def __init__(self):
         self.eventsL = EStack()
@@ -57,31 +69,20 @@ class EventServer():
         self.CurTime = e.TimeWhen
         return e    
     # функция создающее событие
-    def MakeEvent(self, Who, Type, attr, TimeTo):
-        self.eventsL.push(Event(Type, attr, Who, self.CurTime + TimeTo))    
+    def MakeEvent(self, Who, TimeTo):
+        Who.SetEventTime(self.CurTime + TimeTo)
+        self.eventsL.push(Who)    
 
-# формат Ивента. 
-      # namedtuple. Неизменяемый тип данных, а после события нам оно и не надо
-      # Ивент содержит три типа данных, Type, Who, TimeWhen
-          # Type -- тип события, пара значений, тип и вектор доп. данных
-          # who -- кто, т.к. работаем с указателями, то просто event.who = cell
-          # timeWhen -- время в абсолютных единицах, по большому счету пофигу в каких. Важна только сортировка
-Event = namedtuple ('Event', 'Type attr Who TimeWhen')
-# по хорошему Event определяет дальнейшие действия, и вопрос!!!
-# определять это по коду или по слову. Или каким-то идентификатором. Для меня пока не понятно.
-# можно определять список допустимых событий из типа объекта по словарю, хотя это финт ушами
 
 # Start Event Server
-
-
-
-# вопрос, зачем мне эти декораторы???
-
 
 
 #----------------------------- служебные объекты--------------------------------
 class cell:
     """ Класс клетка.
+        Храним данные о состоянии клетки в текущий момент.        
+        - SetEventTime() -- кладем время до события
+        - EventTime() -- время до события
         Умеет
           выдавать решение на следующую итерацию:
               делится,
