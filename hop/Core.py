@@ -84,8 +84,15 @@ class Engine:
         self.ES = EventServer()
         #Куммулятивные показатели
         self.cells = []
-        self.compartments = []
         
+        self.MCC = []
+        self.SCC = []
+        
+    def addCondition(self, name)
+    def addMCC(self, cmprt):
+        self.MCC.append(cmprt)
+    def addSCC(self, cmprt):
+        self.SCC.append(cmprt)
     def start(self):
         StartCell = cell() # создаем первую клетку
         помещаем клетку 
@@ -97,9 +104,11 @@ class Engine:
         """
         Сначала запускаем такт ивентсервера, откуда получаем длину шага времени
         записываем длину шага времени
-        запускаем всю совокупность         
+        запускаем объекты принимающие шаг времени.   
         """
         GetEvent
+        
+    def 
 
 #----------------------------- служебные объекты--------------------------------
 class AbstractCompartment:
@@ -118,7 +127,7 @@ class AbstractCompartment:
         Пока функция-заглушка (виртуальная функция??) 
         """
         self.n = self.n+1
-class StemCompartment(AbstractCompartment, list):
+class SCC(AbstractCompartment, list):
     """
     Отличие от абстракта     
     Пререкрывает ли вызов собственного инита инит родительского класса?
@@ -133,7 +142,7 @@ class StemCompartment(AbstractCompartment, list):
        # except:
        #    pass
         
-class matureCompartment(AbstractCompartment):
+class MCC(AbstractCompartment):
     """
     В этой функции будет куча всего
     """
