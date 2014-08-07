@@ -74,12 +74,80 @@ class EventServer():
         self.eventsL.push(Who)    
 
 
-# Start Event Server
+# Главный объект
 
+class Engine:
+    """
+    
+    """
+    def __init__(self):
+        self.ES = EventServer()
+        #Куммулятивные показатели
+        self.cells = []
+        self.compartments = []
+        
+    def start(self):
+        StartCell = cell() # создаем первую клетку
+        помещаем клетку 
+        Запускаем итератор времени.
+        запускаем генератор события (получаем в ответ дельту времени)
+        MakeEvent(StartCell,)
+        
+    def tik(self):
+        """
+        Сначала запускаем такт ивентсервера, откуда получаем длину шага времени
+        записываем длину шага времени
+        запускаем всю совокупность         
+        """
+        GetEvent
 
 #----------------------------- служебные объекты--------------------------------
+class AbstractCompartment:
+    """
+    Содержит ли компартмент собственную историю??
+    Добавить можно всегда, потому пока нет.
+    Абстрактный компартмент, это количество клеток
+    """
+    
+    def __init__(self):
+        self.n = 0
+    def getQty(self):
+        return self.n
+    def addCell(self):
+        """
+        Пока функция-заглушка (виртуальная функция??) 
+        """
+        self.n = self.n+1
+class StemCompartment(AbstractCompartment, list):
+    """
+    Отличие от абстракта     
+    Пререкрывает ли вызов собственного инита инит родительского класса?
+    """
+    def getQty(self):
+        return len(self)
+    def addCell(self, cell):
+        super(StemCompartment, self).append(cell)
+    def removeCell(self, cell):
+       # try:
+            super(StemCompartment, self).remove(cell)
+       # except:
+       #    pass
+        
+class matureCompartment(AbstractCompartment):
+    """
+    В этой функции будет куча всего
+    """
+    pass
+    
+    
 class cell:
     """ Класс клетка.
+        Каждая клетка существует внутри некоторого компартмента. 
+        Важно следить за тем, что бы небыло утечки клеток.
+        Компартмент-хендлер -- пустой класс-идентификатор поведения для клеток
+        По большому счету, нам не важно какие клетки содержатся в компартменте. 
+        Т.к. от компартмента нам нужно только знание содержимого. 
+        Хотя мы будем делать самостоятельных наследников
         Храним данные о состоянии клетки в текущий момент.        
         - SetEventTime() -- кладем время до события
         - EventTime() -- время до события
@@ -87,21 +155,20 @@ class cell:
           выдавать решение на следующую итерацию:
               делится,
               умирать (и вот вопрос, что с ней происходит, когда она умирает)
-          возвращать  
-        Есть реальный вариант наследовать этому: https://pypi.python.org/pypi/bintrees/2.0.1          
-        Бинарное дерево можно использовать как структуру данных в клоне, и хранить в клетке только информацию о количестве делений
-        а историю и время хранить в Клоне, в нодах дерева. Ожнако это не нужно пока нет проблемы с памятью
-       и тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
+тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
           
           """
-    def __init__(self, s=None):
-        self.action_list = [] #вектор событий с данной клеткой
-        self.time_list = [] #вектор последовательности времени до событий
-        if s == None:
-            p = programm()
-            self.s = p.makeDict()
-        else:
-            self.s = s
+    def __init__(self, cmprt):
+        cmprt.addCell(self)
+        Объявляем внутренние переменные        
+        Генерируем нулевое событие. Ктъры ест рождение.
+    def ChComp(self, fromC, toC):
+        """
+        Смена компартмента
+        """
+        fromC.removeCell(self)
+        toC.addCell(self)
+        
     def action(self):
         act = []
         act.append(self.s['l1']*numpy.random.weibull(self.s['a1'])) #разыгрывем время до ближайших событий
