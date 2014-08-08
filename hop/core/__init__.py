@@ -64,14 +64,22 @@ class EventServer():
     def __init__(self):
         self.eventsL = EStack()
         self.CurTime = 0
+        self.deltaT = 0
     def GetEvent(self):
-        e = self.eventsL.pop()
+        try:
+            e = self.eventsL.pop()
+        except IndexError:   
+            self.deltaT = 0
+            return None
+        self.deltaT = e.TimeWhen - self.CurTime
         self.CurTime = e.TimeWhen
-        return e    
+        return e  
+        
     # функция создающее событие
     def MakeEvent(self, Who, TimeTo):
         Who.SetEventTime(self.CurTime + TimeTo)
         self.eventsL.push(Who)    
+
 
 
 # Главный объект
@@ -87,8 +95,45 @@ class Engine:
         
         self.MCC = []
         self.SCC = []
+        self.conditions = {}
+        self.defCon = None
         
-    def addCondition(self, name)
+        
+    def addCondition(self, name, fun, dst):
+        """
+        Формат словаря --
+        Имя состояния : что справа пока не понятно. 
+        должна быть пара функционал -- функция результат перехода, т.е. события
+        """
+        self.conditions[name] = 
+        
+    def setDefCond(self, name):
+        if name in self.conditions:
+            self.defCon = name
+        else:
+            return 0
+
+# фактически события
+# проблема в том, что мне надо передавать тогда как атрибут кто делится и пр.
+# т.е. это не собственный метод. Хотя можно их запихнуть в клетку, но это отрицательно скажется на памяти.
+    def division(self):
+        """
+        Деление от материнской клетки наследует компартмент, это важно
+        """
+        pass
+    
+    def differentiation(self, cmprt):
+        """
+        Получается, что дифференцировка совпадает с переходом в новый компартмент
+        """
+        pass
+    def apoptosys(self):
+        """
+        Клетка самоудаляется из всех списков, и вычитает значение из компартмента. 
+        По хорошему объект должен удалится сам
+        """        
+        pass        
+
     def addMCC(self, cmprt):
         self.MCC.append(cmprt)
     def addSCC(self, cmprt):
@@ -106,8 +151,14 @@ class Engine:
         записываем длину шага времени
         запускаем объекты принимающие шаг времени.   
         """
-        GetEvent
-        
+        #получить длну такта
+        e = self.ES.GetEvent()
+        if e = None:
+            пораждаем конец расчета
+        else:
+            e.
+        #использовать длину такта
+        ES.deltaT
     def 
 
 #----------------------------- служебные объекты--------------------------------
