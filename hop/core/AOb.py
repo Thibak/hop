@@ -7,6 +7,7 @@ Created on Fri Aug 08 18:18:59 2014
 AOb.py -- Auxiliary Objects
 """
 from operator import attrgetter
+from collections import namedtuple
 
 
 # Наследник встроенного типа list дополненный автоматической сортировкой по признаку TimeWhen. 
@@ -35,5 +36,7 @@ class EventServer():
     def MakeEvent(self, Who, TimeTo):
         Who.SetEventTime(self.CurTime + TimeTo)
         self.eventsL.push(Who)    
+
+Event = namedtuple ('Event', 'fun res')
 
 
