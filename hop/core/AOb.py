@@ -14,8 +14,8 @@ from collections import namedtuple
 # дополнить проверкой типа бы...
 class EStack(list):
     def push(self, element):
-       super(EStack, self).appendppend(element)
-       super(EStack, self).sort(None, attrgetter('TimeWhen()'), reverse=True) 
+       super(EStack, self).append(element)
+       super(EStack, self).sort(None, attrgetter('TimeWhen'), reverse=True) 
 
 class EventServer():
     def __init__(self):

@@ -9,11 +9,11 @@ Created on Tue Jul 29 15:29:06 2014
 
 
 """
-import numpy
 
 # пока просто тмпорт, а вобще-то надо только определенные функции
 import MOb
 from MOb import cell
+from MOb import SCC
 from AOb import EventServer
 from AOb import Event
 
@@ -31,14 +31,13 @@ class Engine:
         # Создаем экземпляр Сервера Событий
         self.ES = EventServer()
         #Закладываем ссылку на сервер событий с целью прямой закладки
-        self.cell.ES = ES        
+        self.cell.ES = self.ES        
         # 
-        
+        self.SCC = {}
+        self.cell.SSC = self.SCC        
         #Куммулятивные показатели
-        self.cells = []        
         self.MCC = []
-        self.SCC = []
-        self.defCon = None
+        
         
 
     def addCondition(self, name, vec):
@@ -50,23 +49,24 @@ class Engine:
         """
         self.cell.conditions[name] = vec
         
+     #   тут надо создавать слоты для оценки количества клеток в состояниях
+        self.SCC[name] = SCC()
+        
     def setDefCond(self, name):
-        if name in self.conditions:
-            self.defCon = name
+        if name in self.cell.conditions:
+            self.cell.defCon = name
         else:
             return 0
 
-    def addMCC(self, cmprt):
-        self.MCC.append(cmprt)
-    def addSCC(self, cmprt):
-        self.SCC.append(cmprt)
+
+
     def start(self):
         # создаем первую клетку, ставим состояние по умолчанию
-        StartCell = self.cell(self.defCon) 
-        StartCell.
-        Запускаем итератор времени.
-        запускаем генератор события (получаем в ответ дельту времени)
-        MakeEvent(StartCell,)
+        StartCell = self.cell() 
+        #StartCell.
+        #Запускаем итератор времени.
+        #запускаем генератор события (получаем в ответ дельту времени)
+        #MakeEvent(StartCell,)
         
     def tik(self):
         """
@@ -76,10 +76,9 @@ class Engine:
         """
         #получить длну такта
         e = self.ES.GetEvent()
-        if e = None:
-            пораждаем конец расчета
-        else:
-            e.
+        #if e == None:
+        #    пораждаем конец расчета
+        #else:
+        #    e.
         #использовать длину такта
-        ES.deltaT
-    def 
+        #ES.deltaT

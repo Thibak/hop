@@ -8,6 +8,7 @@ MOb.py от Modell Objects
 
 """
 
+import numpy
 
 class AbstractCompartment:
     """
@@ -21,25 +22,26 @@ class AbstractCompartment:
     def getQty(self):
         return self.n
     def addCell(self):
-        """
-        Пока функция-заглушка (виртуальная функция??) 
-        """
-        self.n = self.n+1
-        
-class SCC(AbstractCompartment, list):
+        self.n = self.n + 1
+    def remCell(self):
+        self.n = self.n - 1        
+    
+class SCC(AbstractCompartment): #, list):
     """
     stem cells compartment
 
     Отличие от абстракта     
-    Пререкрывает ли вызов собственного инита инит родительского класса?
+    Пока никакого. А если и не будет? 
+    Может наследовать от нее MCC, а сюда перенести весь функционал из абстракта
     """
-    def getQty(self):
-        return len(self)
-    def addCell(self, cell):
-        super(StemCompartment, self).append(cell)
-    def removeCell(self, cell):
+    pass
+#    def getQty(self):
+#        return len(self)
+#    def addCell(self, cell):
+#        super(StemCompartment, self).append(cell)
+#    def removeCell(self, cell):
        # try:
-            super(StemCompartment, self).remove(cell)
+#            super(StemCompartment, self).remove(cell)
        # except:
        #    pass
         
@@ -73,10 +75,10 @@ class cell:
 тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
           
           """
-    def __init__(self, cond):
-        self.CureCond = cond
+    def __init__(self):
+        self.CureCond = self.defCon
+        self.SSC[self.CureCond].addCell()
         self.GenEv()
-        self.ev = 0
         
     def GenEv(self):
         """
@@ -88,18 +90,20 @@ class cell:
 #        act.append(self.s['l2']*numpy.random.weibull(self.s['a2']))
 #        i = numpy.argmin(act) #определяем какое из событий таки ближайшее
 
-
         # Достаём формулы
-        # выкидываем вероятности по формулам
+        # выкидываем время до события по формулам        
+        times = []
+        for i in range(len(self.conditions[self.CureCond])):
+            times.append(eval(self.conditions[self.CureCond][i].fun))
         # определяем наименьшую
         # определяем соответствие событию
         # Ставим идентификатор события
-        self.ev = ev
+        self.ev = numpy.argmin(times)
         # записываем таймер
-        self.ES.MakeEvent(self, timeTo)        
-        # 
+        self.ES.MakeEvent(self, eval(self.conditions[self.CureCond][self.ev].fun))        
         
-    def 
+    def SetEventTime(self, Time):
+        self.TimeWhen = Time
 
     def ChComp(self, fromC, toC):
         """
@@ -109,7 +113,7 @@ class cell:
         toC.addCell(self)
 # фактически события
 # проблема в том, что мне надо передавать тогда как атрибут кто делится и пр.
-# т.е. это не собственный метод. Хотя можно их запихнуть в клетку, но это отрицательно скажется на памяти.
+# т.е. это не собственный метод. Хотя можно их запихнуть в клетку, но это отрицательно скажется на памяти. Т.к. храним ссылки, то не значительно.
     def division(self):
         """
         Деление от материнской клетки наследует компартмент, это важно
@@ -131,10 +135,10 @@ class cell:
 #----------------------------------------------------------   
    
 
-   def go(self):
+    def go(self):
         """
         Выполнить действие.
         Просто достаем строку из справочника по текущему состоянию и записанному событию
         
         """
-        eval(self.conditions[self.CureCond][self.ev].act)
+        eval(self.conditions[self.CureCond][self.ev].res)
