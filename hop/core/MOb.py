@@ -10,17 +10,16 @@ MOb.py от Modell Objects
 
 import numpy
 
-class AbstractCompartment:
+class AbstractCompartment():
     """
     Содержит ли компартмент собственную историю??
     Добавить можно всегда, потому пока нет.
     Абстрактный компартмент, это количество клеток
+    методы доступа к изменению количества
     """
-    
-    def __init__(self):
-        self.n = 0
-    def getQty(self):
-        return self.n
+    n = 0  
+    def __repr__(self):
+        return str(self.n)
     def addCell(self):
         self.n = self.n + 1
     def remCell(self):
@@ -34,7 +33,7 @@ class SCC(AbstractCompartment): #, list):
     Пока никакого. А если и не будет? 
     Может наследовать от нее MCC, а сюда перенести весь функционал из абстракта
     """
-    pass
+    vec = []
 #    def getQty(self):
 #        return len(self)
 #    def addCell(self, cell):
@@ -48,9 +47,23 @@ class SCC(AbstractCompartment): #, list):
 class MCC(AbstractCompartment):
     """
     mature celss compartment
-    В этой функции будет куча всего
+    1. Прямо тут будем хранить не только информацию о количестве но и
+    2. функции изменения и переходов
     """
-    pass
+    # по большому счету совершенно не обязательно тут это определять, но пусть будет для наглядности
+    internal = str()
+    transition = str() 
+    to = str()
+    
+    def step(self, dt):
+        """
+        internal -- должно быть выражением с использованием N как предыдущего значения и dt как дельты времени
+        """
+        N = self.n        
+        self.n = eval(self.internal)
+        return eval(self.transition)
+    def add(self, intg):
+        self.n += intg
     
     
 #--------------------------------------------------
@@ -75,15 +88,18 @@ class cell:
 тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
           
           """
-    def __init__(self):
-        self.CureCond = self.defCon
-        self.SSC[self.CureCond].addCell()
+    def __init__(self, cond = None):
+        if cond == None:
+            self.CureCond = self.defCon
+        else:
+            self.CureCond = cond
+        self.SCC[self.CureCond].addCell()
         self.GenEv()
         
     def GenEv(self):
         """
         по справочнику определяем множество формул для данного состояния
-        self.conditions[self.CureCond] -- возвращает какой-то объект, из которого мы получаем множество формул
+        self.SCC[self.CureCond] -- возвращает какой-то объект, из которого мы получаем множество формул
         """
         #разыгрывем время до ближайших событий
 #        act.append(self.s['l1']*numpy.random.weibull(self.s['a1'])) 
@@ -93,45 +109,74 @@ class cell:
         # Достаём формулы
         # выкидываем время до события по формулам        
         times = []
-        for i in range(len(self.conditions[self.CureCond])):
-            times.append(eval(self.conditions[self.CureCond][i].fun))
+        for i in range(len(self.SCC[self.CureCond].vec)):
+            times.append(eval(self.SCC[self.CureCond].vec[i].fun))
         # определяем наименьшую
         # определяем соответствие событию
         # Ставим идентификатор события
         self.ev = numpy.argmin(times)
         # записываем таймер
-        self.ES.MakeEvent(self, eval(self.conditions[self.CureCond][self.ev].fun))        
+        self.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
         
     def SetEventTime(self, Time):
+        """
+        Инфраструктурная функция. Запилить ее.
+        """
         self.TimeWhen = Time
 
-    def ChComp(self, fromC, toC):
+#    def ChComp(self, fromC, toC):
+#        """
+#        Смена компартмента
+#        """
+#        fromC.removeCell(self)
+#        toC.addCell(self)
+
+# Инфраструктура событий
+# События м.б. продуцирующими и дегенративными
+# продуцирующие события запускают в конце метод-генератор нового события
+# дегенративные этого не делают, в любом случае удаляются из текущего компартмента и, возможно что-то еще
+
+    def sleep(self):
         """
-        Смена компартмента
+        Минимальное событие, просто перезапускает генератор события (т.е. оттягивает время)
         """
-        fromC.removeCell(self)
-        toC.addCell(self)
-# фактически события
-# проблема в том, что мне надо передавать тогда как атрибут кто делится и пр.
-# т.е. это не собственный метод. Хотя можно их запихнуть в клетку, но это отрицательно скажется на памяти. Т.к. храним ссылки, то не значительно.
+        self.GenEv()
+        
     def division(self):
         """
-        Деление от материнской клетки наследует компартмент, это важно
+        Деление от материнской клетки наследует компартмент, это важно.
+        Тут два момента
+        1. Вопрос об ассиметричном делении. Вообще-то нет...
+        2. Перегенерируем ли self?
         """
-        pass
+        cell(self.CureCond)
+        self.GenEv()
+    
+    
+    def assymDivision(self, name):
+        """
+        """
+        cell(name)
+        self.GenEv()
     
     def differentiation(self, cmprt):
         """
-        Получается, что дифференцировка совпадает с переходом в новый компартмент
-        """
-        pass
+        Получается, что дифференцировка совпадает с переходом в другой компартмент
+        """ 
+        self.SCC[self.CureCond].remCell()
+        self.CureCond = cmprt
+        self.SCC[self.CureCond].addCell()
+
+
     def apoptosys(self):
         """
         Клетка самоудаляется из всех списков, и вычитает значение из компартмента. 
         По хорошему объект должен удалится сам
         """        
-        pass        
-        
+        self.SCC[self.CureCond].remCell()
+    
+    def toMature(self, name):
+        pass
 #----------------------------------------------------------   
    
 
@@ -139,6 +184,7 @@ class cell:
         """
         Выполнить действие.
         Просто достаем строку из справочника по текущему состоянию и записанному событию
-        
+        Возвращаем дельту времени для запуска итератора интегральных компартментов
         """
-        eval(self.conditions[self.CureCond][self.ev].res)
+        eval(self.SCC[self.CureCond].vec[self.ev].res)
+        return self.ES.deltaT

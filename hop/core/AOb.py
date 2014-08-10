@@ -39,4 +39,6 @@ class EventServer():
 
 Event = namedtuple ('Event', 'fun res')
 
+Compartment = namedtuple ('Compartment', 'int tran')
+
 
