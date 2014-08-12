@@ -176,7 +176,7 @@ class cell:
         self.SCC[self.CureCond].remCell()
     
     def toMature(self, name):
-        pass
+        self.MCC[name].addCell()
 #----------------------------------------------------------   
    
 
