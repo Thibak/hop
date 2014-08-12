@@ -9,12 +9,13 @@ Created on Tue Jul 29 15:29:06 2014
 
 
 """
-
+from MOb import EventContainer
 from MOb import cell
 from MOb import SCC
 from MOb import MCC
 from AOb import EventServer
-from AOb import Event
+#from AOb import Event
+from AOb import FeedBackSever
 
 # Главный объект
 
@@ -25,11 +26,16 @@ class Engine:
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
         self.cell = cell
+        self.EventContainer = EventContainer
         # Добавляем пустой словарь для состояний клетки (новая формация для структуры)
         # Создаем экземпляр Сервера Событий
         self.ES = EventServer()
+        self.FB = FeedBackSever()
+        self.FB.Engine = self
         #Закладываем ссылку на сервер событий с целью прямой закладки
-        self.cell.ES = self.ES        
+        #self.cell.ES = self.ES  
+        #изменено, т.к. cell наследуется от EventContainer
+        self.EventContainer.Engine = self
         # 
         self.SCC = {}
         self.cell.SCC = self.SCC        

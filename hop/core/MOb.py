@@ -69,8 +69,27 @@ class MCC(AbstractCompartment):
 #--------------------------------------------------
 # клетки    
     
+class EventContainer:
+    """
+    Абстрактный контейнер события. 
+    При создании задаем время и строку для выполнения через время.
+    """
+    def __init__(self, Time, st):
+        self.SetEventTime(Time)
+        self.st = st
+        self.Engine.ES.MakeEvent(self, Time)  
+
+    def SetEventTime(self, Time):
+        """
+        Инфраструктурная функция. Запилить ее.
+        """
+        self.TimeWhen = Time
+    def go(self):
+        exec(self.st)
+        return 0
     
-class cell:
+    
+class cell(EventContainer):
     """ Класс клетка.
         Каждая клетка существует внутри некоторого компартмента. 
         Важно следить за тем, что бы небыло утечки клеток.
@@ -118,11 +137,7 @@ class cell:
         # записываем таймер
         self.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
         
-    def SetEventTime(self, Time):
-        """
-        Инфраструктурная функция. Запилить ее.
-        """
-        self.TimeWhen = Time
+
 
 #    def ChComp(self, fromC, toC):
 #        """
@@ -188,3 +203,9 @@ class cell:
         """
         eval(self.SCC[self.CureCond].vec[self.ev].res)
         return self.ES.deltaT
+
+class RoutineEvents(EventContainer):
+    def stop(self):
+        raise AttributeError
+    def TurnOnFeedback(self):
+        self.Engine.FB.changeDict
