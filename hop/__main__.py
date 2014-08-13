@@ -6,9 +6,12 @@ Created on Tue Jul 29 15:27:42 2014
 """
 import argparse
 import sys
+from hop import a
+
 
 if sys.argv == [sys.argv[0]]:
-	sys.exit()
+    print('point\n')
+    sys.exit()
 
-print('point\n')
+a()
 
