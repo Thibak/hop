@@ -26,16 +26,18 @@ class Engine:
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
         self.cell = cell
-        self.EventContainer = EventContainer
+        EventServer.Engine = self
+        FeedBackSever.Engine = self
+        EventContainer.Engine = self
+        #self.EventContainer = EventContainer
         # Добавляем пустой словарь для состояний клетки (новая формация для структуры)
         # Создаем экземпляр Сервера Событий
         self.ES = EventServer()
         self.FB = FeedBackSever()
-        self.FB.Engine = self
+        #self.FB.Engine = self
         #Закладываем ссылку на сервер событий с целью прямой закладки
         #self.cell.ES = self.ES  
         #изменено, т.к. cell наследуется от EventContainer
-        self.EventContainer.Engine = self
         # 
         self.SCC = {}
         self.cell.SCC = self.SCC        

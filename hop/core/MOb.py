@@ -135,7 +135,7 @@ class cell(EventContainer):
         # Ставим идентификатор события
         self.ev = numpy.argmin(times)
         # записываем таймер
-        self.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
+        self.Engine.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
         
 
 
@@ -202,7 +202,7 @@ class cell(EventContainer):
         Возвращаем дельту времени для запуска итератора интегральных компартментов
         """
         eval(self.SCC[self.CureCond].vec[self.ev].res)
-        return self.ES.deltaT
+        return self.Engine.ES.deltaT
 
 class RoutineEvents(EventContainer):
     def stop(self):
