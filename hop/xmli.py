@@ -28,11 +28,9 @@ etree.tostring(ff)
 
 """
 
-import xml.etree.ElementTree as ET
+import lxml #.etree.ElementTree as ET
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
-
-E = ElementMaker()
 
 
 def glue(l, f):
@@ -51,8 +49,18 @@ def load(name):
 
 def save():
     pass
-def 
 
+class Experiment():
+    def __init__(self, filename=None):
+        self.root = etree.XML('<root></root>')
+        self.Factory = ElementMaker()
+        self.tree = etree.ElementTree(self.root)
+        self.tasks = self.Factory.tasks()
+        self.root.append(self.tasks)
+    def makeTask(self,i,j):
+        task = self.Factory.task(i = i, j = j)
+        #тут будет обработчик
+        self.tasks.append(task)
 
   
     
