@@ -52,15 +52,33 @@ def save():
 
 class Experiment():
     def __init__(self, filename=None):
-        self.root = etree.XML('<root></root>')
-        self.Factory = ElementMaker()
-        self.tree = etree.ElementTree(self.root)
-        self.tasks = self.Factory.tasks()
-        self.root.append(self.tasks)
-    def makeTask(self,i,j):
-        task = self.Factory.task(i = i, j = j)
-        #тут будет обработчик
+        if filename == None:
+            self.root = etree.XML('<root></root>')
+            self.Factory = ElementMaker()
+            self.tree = etree.ElementTree(self.root)
+            self.tasks = self.Factory.tasks()
+            self.root.append(self.tasks)
+            self.meta = self.Factory.meta()
+            self.root.append(self.meta)
+        else:
+            pass # пока пасс, а на самом деле загрузка парсера файла
+    def setIter(self,iteration):
+        self.meta.set(iteration = str(iteration))
+        
+    def MakeMatrix(self, Xvar, XX, Yvar, YY):
+        # матрица. Может передавать не матрицы, а диапазоны и шаги?
+        # что еще надо в матрице?
+        matrix = self.Factory.matrix()  
+        self.meta.append(matrix)
+        matrix.append(self.Factory.x(XX.tolist(), name = str(Xvar)))
+        matrix.append(self.Factory.y(YY.tolist(), name = str(Yvar)))
+        # тут будет цикл, с makeTask        
+        
+    def makeTask(self, i, j, x, y):
+        task = self.Factory.task(i = str(i), j = str(j), x = str(x), y = str(y))
         self.tasks.append(task)
-
+        #При свертывании выполняем двойной цикл в котором забиваем item.i = i, item.j = j, item.x = x[i][j], item.y = y[i][j], где x и y -- имена итерируемых переменных
+        
+        
   
     
