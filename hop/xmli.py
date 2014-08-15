@@ -53,15 +53,37 @@ def save():
 class Experiment():
     def __init__(self, filename=None):
         if filename == None:
-            self.root = etree.XML('<root></root>')
-            self.Factory = ElementMaker()
-            self.tree = etree.ElementTree(self.root)
-            self.tasks = self.Factory.tasks()
-            self.root.append(self.tasks)
-            self.meta = self.Factory.meta()
-            self.root.append(self.meta)
+            pass # м.б. вызов new()
         else:
-            pass # пока пасс, а на самом деле загрузка парсера файла
+            self.filename = filename
+            self.tree = etree.parse(filename)
+            self.root = self.tree.getroot()
+            self.tasks = self.root.find('.//tasks')
+            self.meta = self.root.find('.//meta')
+            # сожет быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
+            # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
+            
+    def new(self, filename):
+        self.filename = filename
+        self.root = etree.XML('<root></root>')
+        self.Factory = ElementMaker()
+        self.tree = etree.ElementTree(self.root)
+        # meta
+        self.meta = self.Factory.meta()
+        self.root.append(self.meta)
+        # tasks
+        self.tasks = self.Factory.tasks()
+        self.root.append(self.tasks)
+        #data
+        self.data = self.Factory.data()
+        self.root.append(self.data)        
+        #save
+        self.save()
+    def save(self, filename = None):
+        if filename != None:
+            self.filename = filename
+        self.tree.write(self.filename)
+            
     def setIter(self,iteration):
         self.meta.set(iteration = str(iteration))
         
