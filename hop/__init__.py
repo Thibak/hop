@@ -6,9 +6,9 @@ def a():
     print("init")
     
 from core import Engine
- 
+from xmli import Experiment
 
-#пока можно прописать заглушки, что бы понять фрейм разработки интерфейса XML
+
 
 # ------ метаинформация ------
 # пока убираем все в new

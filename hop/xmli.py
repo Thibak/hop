@@ -93,13 +93,18 @@ class Experiment():
             for j in range(len(YY)):
                 self.makeTask(i,j,XX[i][j],YY[i][j])
         self.meta.set(status = 'task')
+        self.save()
     def makeVec(self, Xvar, XX):
         if self.meta.attrib['status'] != 'Null':
             raise Exception('Task already given')
         self.meta.set(TaskType = 'V')
+        vec = self.Factory.vec()
+        self.meta.append(vec)
+        vec.append(self.Factory.x(XX.tolist(), name = str(Xvar)))
         for i in range(len(XX)):
             self.makeVTask(i,XX[i])
         self.meta.set(status = 'task')
+        self.save()
     def makeMTask(self, i, j, x, y):
         mtask = self.Factory.mtask(i = str(i), j = str(j), x = str(x), y = str(y))
         self.tasks.append(mtask)
@@ -107,6 +112,8 @@ class Experiment():
     def makeVTask(self,i,x):
         vtask = self.Factory.vtask(i = str(i), x = str(x))
         self.tasks.append(vtask)
+    def setModel(self, name):
+        self.meta.set(modelFN = name)
 # ------------функции работы парсера существующего файла  -------------------
     def open(self, filename):
         self.filename = filename
@@ -116,14 +123,20 @@ class Experiment():
         self.meta = self.root.find('.//meta')
             # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
             # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
+        # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
         self.iterations = int(self.meta.attrib['iteration'])
-        self.modelFN    = int(self.meta.attrib['modelFN'])
+        self.modelFN    = self.meta.attrib['modelFN']
+        self.type = self.meta.attrib['TaskType']
+        self.stataus = self.meta.attrib['status']
+        
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
         """
         ВАЖНО! Не забыть, что тут нужен трай, иначе в конце обработки будет вылет.
         Хотя можно и делать проверку по прогрессу.
         А можно реализовать ретурн 1/0 как индикатор загружено/нет
+        
+        ДОПОЛНИТЬ определителем типа задачи
         """
         # мы находим какой-то (любой) таск, и возвращаем словарь атрибутов? 
         # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
@@ -144,11 +157,13 @@ class Experiment():
         вопросыЖ
         1. Как затирать таски? -- очень просто, вызовом метода .clear()
         2. что писать? пока стоит рабочая заглушка
+        3. определитель типа 
         """
         DI = self.Factory.item(str(data), i = str(self.i), j = str(self.j), x = str(self.x), y = str(self.y))
         self.data.append(DI)
         self.CT.clear()
         self.meta.set(status = 'progress')
+        self.save()
     def progress(self):
         """
         Возвращает процент выполненной работы
