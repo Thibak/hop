@@ -31,6 +31,7 @@ etree.tostring(ff)
 import lxml #.etree.ElementTree as ET
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
+from types import NoneType
 
 
 def glue(l, f):
@@ -42,27 +43,14 @@ def glue(l, f):
         f.append(l[i])
     return f
 
-def load(name):
-    tree = ET.parse(load) #(file_in)
-    root = tree.getroot()
-    return root
-
-def save():
-    pass
 
 class Experiment():
     def __init__(self, filename=None):
         if filename == None:
             pass # м.б. вызов new()
         else:
-            self.filename = filename
-            self.tree = etree.parse(filename)
-            self.root = self.tree.getroot()
-            self.tasks = self.root.find('.//tasks')
-            self.meta = self.root.find('.//meta')
-            # сожет быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
-            # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
-            
+            self.open(filename)
+# ----------- функции работы генератора задачи ---------
     def new(self, filename):
         self.filename = filename
         self.root = etree.XML('<root></root>')
@@ -76,7 +64,9 @@ class Experiment():
         self.root.append(self.tasks)
         #data
         self.data = self.Factory.data()
-        self.root.append(self.data)        
+        self.root.append(self.data)   
+        #status
+        self.meta.set(status = 'Null')
         #save
         self.save()
     def save(self, filename = None):
@@ -90,17 +80,87 @@ class Experiment():
     def MakeMatrix(self, Xvar, XX, Yvar, YY):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
         # что еще надо в матрице?
+        if self.meta.attrib['status'] != 'Null':
+            raise Exception('Task already given')
+        self.meta.set(TaskType = 'M')
         matrix = self.Factory.matrix()  
         self.meta.append(matrix)
         matrix.append(self.Factory.x(XX.tolist(), name = str(Xvar)))
         matrix.append(self.Factory.y(YY.tolist(), name = str(Yvar)))
-        # тут будет цикл, с makeTask        
-        
-    def makeTask(self, i, j, x, y):
-        task = self.Factory.task(i = str(i), j = str(j), x = str(x), y = str(y))
-        self.tasks.append(task)
+        # тут будет цикл, с makeTask 
+        #z = [[x[i][j]+y[i][j] for i in range(len(x))] for j in range(len(y))]
+        for i in range(len(XX)):
+            for j in range(len(YY)):
+                self.makeTask(i,j,XX[i][j],YY[i][j])
+        self.meta.set(status = 'task')
+    def makeVec(self, Xvar, XX):
+        if self.meta.attrib['status'] != 'Null':
+            raise Exception('Task already given')
+        self.meta.set(TaskType = 'V')
+        for i in range(len(XX)):
+            self.makeVTask(i,XX[i])
+        self.meta.set(status = 'task')
+    def makeMTask(self, i, j, x, y):
+        mtask = self.Factory.mtask(i = str(i), j = str(j), x = str(x), y = str(y))
+        self.tasks.append(mtask)
         #При свертывании выполняем двойной цикл в котором забиваем item.i = i, item.j = j, item.x = x[i][j], item.y = y[i][j], где x и y -- имена итерируемых переменных
-        
-        
-  
-    
+    def makeVTask(self,i,x):
+        vtask = self.Factory.vtask(i = str(i), x = str(x))
+        self.tasks.append(vtask)
+# ------------функции работы парсера существующего файла  -------------------
+    def open(self, filename):
+        self.filename = filename
+        self.tree = etree.parse(filename)
+        self.root = self.tree.getroot()
+        self.tasks = self.root.find('.//tasks')
+        self.meta = self.root.find('.//meta')
+            # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
+            # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
+        self.iterations = int(self.meta.attrib['iteration'])
+        self.modelFN    = int(self.meta.attrib['modelFN'])
+# -------- функции работы обработчика -----------
+    def LoadTask(self): #<-- фактически оболочка над итератором
+        """
+        ВАЖНО! Не забыть, что тут нужен трай, иначе в конце обработки будет вылет.
+        Хотя можно и делать проверку по прогрессу.
+        А можно реализовать ретурн 1/0 как индикатор загружено/нет
+        """
+        # мы находим какой-то (любой) таск, и возвращаем словарь атрибутов? 
+        # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
+        self.Task = {}
+        self.CT = self.root.find('.//task')
+        if type(self.CT) == NoneType:
+            self.meta.set(status = 'complete')
+            raise IndexError # попробовать выработку специфического ексепшена.
+            
+        # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
+        # хотя можно словарь сделать, как элементарный контейнер
+        self.Task['i'] = int(self.CT.attrib['i'])
+        self.Task['j'] = int(self.CT.attrib['j'])
+        self.Task['x'] = int(self.CT.attrib['x'])
+        self.Task['y'] = int(self.CT.attrib['y'])
+    def writeData(self, data):
+        """
+        вопросыЖ
+        1. Как затирать таски? -- очень просто, вызовом метода .clear()
+        2. что писать? пока стоит рабочая заглушка
+        """
+        DI = self.Factory.item(str(data), i = str(self.i), j = str(self.j), x = str(self.x), y = str(self.y))
+        self.data.append(DI)
+        self.CT.clear()
+        self.meta.set(status = 'progress')
+    def progress(self):
+        """
+        Возвращает процент выполненной работы
+        """
+        if self.meta.attrib['status'] == 'Null':
+            return 0
+        elif self.meta.attrib['status'] == 'complete':
+            return 100
+        elif self.meta.attrib['status'] == 'progress':
+            return len(self.tasks.findall())/(len(self.tasks.findall())+len(self.data.findall()))*100
+        else: raise Exception('No status')
+# -------- функции работы графического обработчика -------
+    def getZ(self, nameZ):
+        # возвращает матрицу, которая формируется из прочесываемых итемов. 
+        # проверка на законченность вычислений
