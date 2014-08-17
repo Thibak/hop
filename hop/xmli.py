@@ -32,6 +32,7 @@ import lxml #.etree.ElementTree as ET
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
 from types import NoneType
+from datetime import datetime
 
 
 def glue(l, f):
@@ -50,6 +51,10 @@ class Experiment():
             pass # м.б. вызов new()
         else:
             self.open(filename)
+    def __repr__(self):
+        out = 'Эксперимент: /n '
+#        try: out += self.filename
+        
 # ----------- функции работы генератора задачи ---------
     def new(self, filename):
         self.filename = filename
@@ -67,6 +72,10 @@ class Experiment():
         self.root.append(self.data)   
         #status
         self.meta.set(status = 'Null')
+        # time
+        self.time = self.Factory.time()
+        self.meta.append(self.time)        
+        self.time.set(CreationTime = str(datetime.now()))
         #save
         self.save()
     def save(self, filename = None):
@@ -121,14 +130,14 @@ class Experiment():
         self.root = self.tree.getroot()
         self.tasks = self.root.find('.//tasks')
         self.meta = self.root.find('.//meta')
-            # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
+        self.time = self.root.find('.//time')        
+        # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
             # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
         self.iterations = int(self.meta.attrib['iteration'])
         self.modelFN    = self.meta.attrib['modelFN']
         self.type = self.meta.attrib['TaskType']
         self.stataus = self.meta.attrib['status']
-        
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
         """
@@ -168,14 +177,17 @@ class Experiment():
         """
         Возвращает процент выполненной работы
         """
-        if self.meta.attrib['status'] == 'Null':
+        if self.meta.attrib['status'] == 'Null' or 'task':
             return 0
         elif self.meta.attrib['status'] == 'complete':
             return 100
         elif self.meta.attrib['status'] == 'progress':
             return len(self.tasks.findall())/(len(self.tasks.findall())+len(self.data.findall()))*100
         else: raise Exception('No status')
+    def status(self):
+            return self.meta.attrib['status'] 
 # -------- функции работы графического обработчика -------
     def getZ(self, nameZ):
+        pass
         # возвращает матрицу, которая формируется из прочесываемых итемов. 
         # проверка на законченность вычислений
