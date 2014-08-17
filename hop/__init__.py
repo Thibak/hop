@@ -2,25 +2,50 @@
 """
 @author: russinow
 """
-def a():
-    print("init")
-    
 from core import Engine
 from xmli import Experiment
 from subprocess import call
+
+# Создаем болванку для общедоступности
 ex = None
 
-# ------ метаинформация ------
-# пока убираем все в new
+#--------------------------------------
+# хелпы:
+# два штуки: графика, новый файл
+
+new_task_help =\
+"""
+Для создания нового задания задайте следующие параметры:
+Как префикс используйте ex.
+-
+-
+-
+
+"""
+
+graph_help =\
+"""
+Для работы с графикой доступны следующие функции:
+Как префикс используйте ex.
+-
+-
+-
+
+""" 
 
 
 
 #----- блок работы с файлом -----  
 
 def load(filename):
-    ex = Experiment(filename)
+    global ex
+    try:
+        ex = Experiment(filename)
+    except IOError:
+        print('No such file')
 
 def start():
+    global ex
     """
     Запускаем рассчет по иксемелю
     Вначале каждого варианта надо выводить информацию о файле, полную.
@@ -34,7 +59,8 @@ def start():
     elif ex.status() == 'complete':
         yn = raw_input("Расчет завершен. Прейти в интерактивный режим для построения графики?\n(y/n):")
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
-            pass# перейти в интерактивный режим, вывести хелп по графике
+            print graph_help
+            pass # перейти в интерактивный режим, вывести хелп по графике
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
@@ -52,7 +78,8 @@ def start():
         yn = raw_input("Это только заготовка, Вы хотите создать задание?\n(y/n):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
-            pass# # перейти в интерактивный режим, вывести хелп по созданию задания
+            print new_task_help            
+            pass # перейти в интерактивный режим, вывести хелп по созданию задания
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
@@ -77,6 +104,12 @@ def start():
             return
         else:
             print('Что-то опять не то. Закрываюсь.')
-    def new():
+
+def new(filename):
+    global ex
+    ex = Experiment()
+    ex.new(filename)
+    print new_task_help
+        
      
 

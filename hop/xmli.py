@@ -57,62 +57,69 @@ class Experiment():
         
 # ----------- функции работы генератора задачи ---------
     def new(self, filename):
-        self.filename = filename
-        self.root = etree.XML('<root></root>')
-        self.Factory = ElementMaker()
-        self.tree = etree.ElementTree(self.root)
-        # meta
-        self.meta = self.Factory.meta()
-        self.root.append(self.meta)
-        # tasks
-        self.tasks = self.Factory.tasks()
-        self.root.append(self.tasks)
-        #data
-        self.data = self.Factory.data()
-        self.root.append(self.data)   
-        #status
-        self.meta.set(status = 'Null')
-        # time
-        self.time = self.Factory.time()
-        self.meta.append(self.time)        
-        self.time.set(CreationTime = str(datetime.now()))
-        #save
-        self.save()
+        if filename[-3:] != '.xml':
+            filename += '.xml'
+        try: 
+            self.open(filename)
+        except:
+            self.filename = filename
+            self.root = etree.XML('<root></root>')
+            self.Factory = ElementMaker()
+            self.tree = etree.ElementTree(self.root)
+            # meta
+            self.meta = self.Factory.meta()
+            self.root.append(self.meta)
+            # tasks
+            self.tasks = self.Factory.tasks()
+            self.root.append(self.tasks)
+            #data
+            self.data = self.Factory.data()
+            self.root.append(self.data)   
+            #status
+            self.meta.set('status', 'Null')
+            # time
+            self.time = self.Factory.time()
+            self.meta.append(self.time)        
+            self.time.set('CreationTime', str(datetime.now()))
+            #save
+            self.save()
+        else:
+            print('File with such name alrady exist. File is open for reading.')
     def save(self, filename = None):
         if filename != None:
             self.filename = filename
-        self.tree.write(self.filename)
+        self.tree.write(self.filename, pretty_print=True)
             
     def setIter(self,iteration):
-        self.meta.set(iteration = str(iteration))
+        self.meta.set('iteration', str(iteration))
         
     def MakeMatrix(self, Xvar, XX, Yvar, YY):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
         # что еще надо в матрице?
         if self.meta.attrib['status'] != 'Null':
             raise Exception('Task already given')
-        self.meta.set(TaskType = 'M')
+        self.meta.set('TaskType', 'M')
         matrix = self.Factory.matrix()  
         self.meta.append(matrix)
-        matrix.append(self.Factory.x(XX.tolist(), name = str(Xvar)))
-        matrix.append(self.Factory.y(YY.tolist(), name = str(Yvar)))
+        matrix.append(self.Factory.x(str(XX.tolist()), name = str(Xvar)))
+        matrix.append(self.Factory.y(str(YY.tolist()), name = str(Yvar)))
         # тут будет цикл, с makeTask 
         #z = [[x[i][j]+y[i][j] for i in range(len(x))] for j in range(len(y))]
         for i in range(len(XX)):
             for j in range(len(YY)):
                 self.makeTask(i,j,XX[i][j],YY[i][j])
-        self.meta.set(status = 'task')
+        self.meta.set('status', 'task')
         self.save()
     def makeVec(self, Xvar, XX):
         if self.meta.attrib['status'] != 'Null':
             raise Exception('Task already given')
-        self.meta.set(TaskType = 'V')
+        self.meta.set('TaskType', 'V')
         vec = self.Factory.vec()
         self.meta.append(vec)
-        vec.append(self.Factory.x(XX.tolist(), name = str(Xvar)))
+        vec.append(self.Factory.x(str(XX.tolist()), name = str(Xvar)))
         for i in range(len(XX)):
             self.makeVTask(i,XX[i])
-        self.meta.set(status = 'task')
+        self.meta.set('status', 'task')
         self.save()
     def makeMTask(self, i, j, x, y):
         mtask = self.Factory.mtask(i = str(i), j = str(j), x = str(x), y = str(y))
@@ -122,7 +129,7 @@ class Experiment():
         vtask = self.Factory.vtask(i = str(i), x = str(x))
         self.tasks.append(vtask)
     def setModel(self, name):
-        self.meta.set(modelFN = name)
+        self.meta.set('modelFN', str(name))
 # ------------функции работы парсера существующего файла  -------------------
     def open(self, filename):
         self.filename = filename
@@ -134,10 +141,11 @@ class Experiment():
         # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
             # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
-        self.iterations = int(self.meta.attrib['iteration'])
-        self.modelFN    = self.meta.attrib['modelFN']
-        self.type = self.meta.attrib['TaskType']
-        self.stataus = self.meta.attrib['status']
+        # ЭТО НЕобязательные параметры, т.ч. тут должны быть траи        
+        #self.iterations = int(self.meta.attrib['iteration'])
+        #self.modelFN    = self.meta.attrib['modelFN']
+        #self.type = self.meta.attrib['TaskType']
+        #self.stataus = self.meta.attrib['status']
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
         """
@@ -152,7 +160,7 @@ class Experiment():
         self.Task = {}
         self.CT = self.root.find('.//task')
         if type(self.CT) == NoneType:
-            self.meta.set(status = 'complete')
+            self.meta.set('status', 'complete')
             raise IndexError # попробовать выработку специфического ексепшена.
             
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
@@ -171,7 +179,7 @@ class Experiment():
         DI = self.Factory.item(str(data), i = str(self.i), j = str(self.j), x = str(self.x), y = str(self.y))
         self.data.append(DI)
         self.CT.clear()
-        self.meta.set(status = 'progress')
+        self.meta.set('status', 'progress')
         self.save()
     def progress(self):
         """
