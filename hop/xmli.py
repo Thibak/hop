@@ -52,8 +52,32 @@ class Experiment():
         else:
             self.open(filename)
     def __repr__(self):
-        out = 'Эксперимент: /n '
-#        try: out += self.filename
+        out = 'Эксперимент:'
+        # проверка открыт ли файл
+        # проверка подгрузки параметров
+        out += '\nИмя файла: '
+        try: 
+            out += self.filename
+        except AttributeError:
+            pass
+        out += '\nCreated at: '
+        try: 
+            out += self.time.attrib['CreationTime']
+        except AttributeError:
+            pass
+        out += '\nStatus: '
+        try: 
+            out += self.meta.attrib['status']
+        except AttributeError:
+            pass          
+        out += "Расчет завершен на "       
+        try: 
+            out += str(self.progress())
+            out += '%'
+        except AttributeError:
+            out += '0%'        
+
+        return out   
         
 # ----------- функции работы генератора задачи ---------
     def new(self, filename):
@@ -132,6 +156,8 @@ class Experiment():
         self.meta.set('modelFN', str(name))
 # ------------функции работы парсера существующего файла  -------------------
     def open(self, filename):
+        if filename[-3:] != '.xml':
+            filename += '.xml'
         self.filename = filename
         self.tree = etree.parse(filename)
         self.root = self.tree.getroot()
@@ -141,7 +167,8 @@ class Experiment():
         # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
             # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
-        # ЭТО НЕобязательные параметры, т.ч. тут должны быть траи        
+        # ЭТО НЕобязательные параметры, т.ч. тут должны быть траи
+        # проводить проверку статуса и в зависимости от подгружать параметры.
         #self.iterations = int(self.meta.attrib['iteration'])
         #self.modelFN    = self.meta.attrib['modelFN']
         #self.type = self.meta.attrib['TaskType']

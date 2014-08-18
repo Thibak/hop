@@ -57,6 +57,7 @@ def start():
             - new()        
         """)
     elif ex.status() == 'complete':
+        print ex
         yn = raw_input("Расчет завершен. Прейти в интерактивный режим для построения графики?\n(y/n):")
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
             print graph_help
@@ -66,6 +67,7 @@ def start():
         else:
             print('Что-то не то. Закрываюсь.')
     elif ex.status() == 'progress':
+        print ex        
         yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
@@ -75,6 +77,7 @@ def start():
         else:
             print('Что-то не то. Закрываюсь.')
     elif ex.status() == 'Null':
+        print ex
         yn = raw_input("Это только заготовка, Вы хотите создать задание?\n(y/n):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
@@ -86,6 +89,7 @@ def start():
             print('Что-то не то. Закрываюсь.')
 
     elif ex.status() == 'task':
+        print ex
         yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
@@ -95,6 +99,7 @@ def start():
         else:
             print('Что-то не то. Закрываюсь.')
     else:
+        print ex
         yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
         if   yn == 'e' or 'E' or 'Е' or 'е' or 'edit':
             call("notepad "+ str(ex.filename))
