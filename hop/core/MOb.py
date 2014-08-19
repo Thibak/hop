@@ -192,6 +192,8 @@ class cell(EventContainer):
     
     def toMature(self, name):
         self.MCC[name].addCell()
+    def test(self,s):
+        print('get -- > '+s)
 #----------------------------------------------------------   
    
 
@@ -207,5 +209,6 @@ class cell(EventContainer):
 class RoutineEvents(EventContainer):
     def stop(self):
         raise AttributeError
-    def TurnOnFeedback(self):
-        self.Engine.FB.changeDict
+    # какой-то бессмысленный метод, каменчу
+    #def TurnOnFeedback(self,name):
+    #    self.Engine.FB.changeDict(name)

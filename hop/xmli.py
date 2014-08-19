@@ -163,16 +163,19 @@ class Experiment():
         self.root = self.tree.getroot()
         self.tasks = self.root.find('.//tasks')
         self.meta = self.root.find('.//meta')
-        self.time = self.root.find('.//time')        
-        # может быть и не надо предыдущее, т.к. можно использовать абсолютные фаинды            
-            # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
+        self.time = self.root.find('.//time')
+        # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
-        # ЭТО НЕобязательные параметры, т.ч. тут должны быть траи
-        # проводить проверку статуса и в зависимости от подгружать параметры.
-        #self.iterations = int(self.meta.attrib['iteration'])
-        #self.modelFN    = self.meta.attrib['modelFN']
-        #self.type = self.meta.attrib['TaskType']
-        #self.stataus = self.meta.attrib['status']
+        # не самый лучший вариант, т.к. мы снова читаем хмль, Может быть стоит дважды прописать
+        try: self.iterations = int(self.meta.attrib['iteration'])
+        except: print('failed to load number of iterations')
+        try: self.modelFN    = self.meta.attrib['modelFN']
+        except: print('failed to load name of file of model')
+        try: self.type = self.meta.attrib['TaskType']
+        except: print('failed to load type of task')
+        try: self.stataus = self.meta.attrib['status']
+        except: print('failed to load status')
+        #
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
         """

@@ -14,7 +14,8 @@ from MOb import cell
 from MOb import SCC
 from MOb import MCC
 from AOb import EventServer
-#from AOb import Event
+from AOb import Event
+from MOb import RoutineEvents
 from AOb import FeedBackSever
 
 # Главный объект
@@ -26,6 +27,7 @@ class Engine:
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
         self.cell = cell
+        self.cell.Engine = self
         EventServer.Engine = self
         FeedBackSever.Engine = self
         EventContainer.Engine = self
