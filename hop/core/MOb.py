@@ -9,6 +9,7 @@ MOb.py от Modell Objects
 """
 
 import numpy
+import random
 
 class AbstractCompartment():
     """
@@ -59,7 +60,7 @@ class MCC(AbstractCompartment):
         """
         internal -- должно быть выражением с использованием N как предыдущего значения и dt как дельты времени
         """
-        N = self.n        
+        N = self.n #<--- сильно не факт, что будет работать!
         self.n = eval(self.internal)
         return eval(self.transition)
     def add(self, intg):
@@ -74,7 +75,7 @@ class EventContainer:
     Абстрактный контейнер события. 
     При создании задаем время и строку для выполнения через время.
     """
-    def __init__(self, Time, st):
+    def __init__(self, Time, st = ''):
         self.SetEventTime(Time)
         self.st = st
         self.Engine.ES.MakeEvent(self, Time)  
@@ -134,7 +135,7 @@ class cell(EventContainer):
         # определяем соответствие событию
         # Ставим идентификатор события
         self.ev = numpy.argmin(times)
-        # записываем таймер
+        # записываем таймер, записываем время ЧЕРЕЗ КОТОРОЕ ПРОИЗОЙДЕТ СОБЫТИЕ
         self.Engine.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
         
 
@@ -203,11 +204,14 @@ class cell(EventContainer):
         Просто достаем строку из справочника по текущему состоянию и записанному событию
         Возвращаем дельту времени для запуска итератора интегральных компартментов
         """
-        eval(self.SCC[self.CureCond].vec[self.ev].res)
+        exec(self.SCC[self.CureCond].vec[self.ev].res)
         return self.Engine.ES.deltaT
 
-class RoutineEvents(EventContainer):
-    def stop(self):
+class StopEvent(EventContainer):
+    """
+    Метод, переопределяющий функцию go таким образом, что она возвращает ошибку, останавливающую Ивент-сервер и расчет данного раунда
+    """
+    def go(self):
         raise AttributeError
     # какой-то бессмысленный метод, каменчу
     #def TurnOnFeedback(self,name):

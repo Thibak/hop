@@ -9,15 +9,19 @@ Created on Tue Jul 29 15:29:06 2014
 
 
 """
+
+
 from MOb import EventContainer
 from MOb import cell
 from MOb import SCC
 from MOb import MCC
 from AOb import EventServer
-from AOb import Event
-from MOb import RoutineEvents
 from AOb import FeedBackSever
 
+#импорт для работы скрипта описания модели:
+from AOb import Event
+from MOb import EventContainer
+from MOb import StopEvent
 # Главный объект
 
 class Engine:
@@ -27,10 +31,10 @@ class Engine:
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
         self.cell = cell
-        self.cell.Engine = self
         EventServer.Engine = self
         FeedBackSever.Engine = self
         EventContainer.Engine = self
+        # self.cell.Engine = self <-- в этой строке нет необходимости, т.к. есть предыдущая
         #self.EventContainer = EventContainer
         # Добавляем пустой словарь для состояний клетки (новая формация для структуры)
         # Создаем экземпляр Сервера Событий
