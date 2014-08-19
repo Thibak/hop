@@ -168,7 +168,7 @@ class cell(EventContainer):
         self.GenEv()
     
     
-    def assymDivision(self, name):
+    def assymDivision(self, name = None):
         """
         """
         cell(name)
