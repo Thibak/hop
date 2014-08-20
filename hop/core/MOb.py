@@ -10,6 +10,7 @@ MOb.py от Modell Objects
 
 import numpy
 import random
+from types import NoneType, CodeType, StringType
 
 class AbstractCompartment():
     """
@@ -75,9 +76,17 @@ class EventContainer:
     Абстрактный контейнер события. 
     При создании задаем время и строку для выполнения через время.
     """
-    def __init__(self, Time, st = ''):
+    def __init__(self, Time, st = None):
+        if type(st) == NoneType:
+            st = ''
+        elif type(st) == StringType:
+            self.st = compile(st, '<string>', 'eval')
+        elif type(st) == CodeType:
+            self.st = st
+        else: 
+            raise TypeError
+        
         self.SetEventTime(Time)
-        self.st = st
         self.Engine.ES.MakeEvent(self, Time)  
 
     def SetEventTime(self, Time):

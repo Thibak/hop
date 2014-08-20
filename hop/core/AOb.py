@@ -11,6 +11,8 @@ from collections import namedtuple
 from types import ListType, StringType
 from numpy import arange
 
+from MOb import EventContainer
+
 # пока впишу сюда
 class X(object):
     def __init__(self,_d={},**kwargs):
@@ -48,7 +50,11 @@ class EventServer():
         Who.SetEventTime(self.CurTime + TimeTo)
         self.eventsL.push(Who)    
 
-Event = namedtuple ('Event', 'fun res')
+#Event = namedtuple ('Event', 'fun res')
+class Event:
+    def __init__(self, function, result):
+        self.fun = compile(function, '<string>', 'eval')
+        self.res = compile(result,   '<string>', 'exec')
 
 Compartment = namedtuple ('Compartment', 'int tran')
 
@@ -101,7 +107,7 @@ class DataCollector:
     # функции второго уровня
     def makePeriodicCollector(self, name, period, stop):#периодический
         for i in arange(0, stop, period):
-            self.Engine. <--------------------------------
+            EventContainer(i,self.data.__dict__[name])
             
     def makeFinalCollector(self):#конечный
         pass
