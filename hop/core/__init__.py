@@ -16,7 +16,7 @@ from MOb import cell
 from MOb import SCC
 from MOb import MCC
 from AOb import EventServer
-from AOb import FeedBackSever
+from AOb import FeedBackSever, DataCollector
 
 #импорт для работы скрипта описания модели:
 from AOb import Event
@@ -34,6 +34,7 @@ class Engine:
         EventServer.Engine = self
         FeedBackSever.Engine = self
         EventContainer.Engine = self
+        DataCollector.Engine = self
         # self.cell.Engine = self <-- в этой строке нет необходимости, т.к. есть предыдущая
         #self.EventContainer = EventContainer
         # Добавляем пустой словарь для состояний клетки (новая формация для структуры)

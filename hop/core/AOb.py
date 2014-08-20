@@ -8,6 +8,17 @@ AOb.py -- Auxiliary Objects
 """
 from operator import attrgetter
 from collections import namedtuple
+from types import ListType, StringType
+from numpy import arange
+
+# пока впишу сюда
+class X(object):
+    def __init__(self,_d={},**kwargs):
+        kwargs.update(_d)
+        self.__dict__=kwargs
+class Y(X):
+    def __repr__(self):
+        return '<Y:%s>'%self.__dict__
 
 
 # Наследник встроенного типа list дополненный автоматической сортировкой по признаку TimeWhen. 
@@ -71,4 +82,30 @@ class FeedBackSever:
         
     def val(self,name):
         return(eval(self.ValDic[self.CureDict][name]))
-        
+
+def functionalize(f):f()
+
+class DataCollector:
+    data = X()
+    slot = X()
+    # функции первого уровня    
+    def addDataPoint(self, p):
+        if type(p) == StringType:
+            self.data.__dict__[p] = None
+        if type(p) == ListType:
+            self.data.__dict__.update(dict.fromkeys(p))
+    def addSlot(self, name, command):
+        # в команде можем использовать self.data.имя ранее определенной точки входа данных 
+        compiled_command = compile(command, '<string>', 'exec')
+        self.slot.__dict__[name] = compiled_command
+    # функции второго уровня
+    def makePeriodicCollector(self, name, period, stop):#периодический
+        for i in arange(0, stop, period):
+            self.Engine. <--------------------------------
+            
+    def makeFinalCollector(self):#конечный
+        pass
+    def makeTaktCollector(self):#потактный
+        pass
+    def makeEventCollector(self):#событийный
+        pass
