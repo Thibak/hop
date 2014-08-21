@@ -53,9 +53,10 @@ class MCC(AbstractCompartment):
     2. функции изменения и переходов
     """
     # по большому счету совершенно не обязательно тут это определять, но пусть будет для наглядности
-    internal = str()
-    transition = str() 
-    to = str()
+    def __init__(self, internal, transition, to):
+        self.internal = compile(internal, '<string>', 'eval')
+        self.transition = compile(transition, '<string>', 'eval') 
+        self.to = to
     
     def step(self, dt):
         """

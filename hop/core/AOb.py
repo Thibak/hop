@@ -56,7 +56,8 @@ class Event:
         self.fun = compile(function, '<string>', 'eval')
         self.res = compile(result,   '<string>', 'exec')
 
-Compartment = namedtuple ('Compartment', 'int tran')
+# какой-то непонятный рудимент, который я ВРОДЕбы переписал, но пока оставим, вдруг нет
+#Compartment = namedtuple ('Compartment', 'int tran')
 
 class FeedBackSever:
     """
@@ -94,12 +95,18 @@ def functionalize(f):f()
 class DataCollector:
     data = X()
     slot = X()
+    def __init__(self):
+        self.addSlot('final', '')
+        self.addSlot('taktal', '')
     # функции первого уровня    
-    def addDataPoint(self, p):
-        if type(p) == StringType:
-            self.data.__dict__[p] = None
-        if type(p) == ListType:
-            self.data.__dict__.update(dict.fromkeys(p))
+    def addDataPoint(self, p, typeOf = 's'):
+        #if type(p) == StringType:
+        if typeOf == 'v':
+            self.data.__dict__[p] = list()
+        else: self.data.__dict__[p] = None
+        
+        #if type(p) == ListType:
+        #    self.data.__dict__.update(dict.fromkeys(p))
     def addSlot(self, name, command):
         # в команде можем использовать self.data.имя ранее определенной точки входа данных 
         compiled_command = compile(command, '<string>', 'exec')
@@ -109,9 +116,13 @@ class DataCollector:
         for i in arange(0, stop, period):
             EventContainer(i,self.data.__dict__[name])
             
-    def makeFinalCollector(self):#конечный
-        pass
-    def makeTaktCollector(self):#потактный
-        pass
-    def makeEventCollector(self):#событийный
-        pass
+    def makeFinalCollector(self, s):#конечный
+        self.addSlot('final', s)
+        
+    def makeTaktCollector(self, s):#потактный
+        self.addSlot('taktal', s)        
+        self.Engine.taktalSlot = self.slot.taktal
+        
+    #def makeEventCollector(self):#событийный
+     #   pass
+        # пожалуй пока не буду это вообще реализовывать

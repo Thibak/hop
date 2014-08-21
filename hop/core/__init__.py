@@ -41,6 +41,7 @@ class Engine:
         # Создаем экземпляр Сервера Событий
         self.ES = EventServer()
         self.FB = FeedBackSever()
+        self.DC = DataCollector()
         #self.FB.Engine = self
         #Закладываем ссылку на сервер событий с целью прямой закладки
         #self.cell.ES = self.ES  
@@ -52,8 +53,9 @@ class Engine:
         self.cell.MCC = self.MCC 
         #Куммулятивные показатели
         self.TimeLine = []
-        
-        
+    
+        #Хитрый пустой слот, который мы запиливаем как заглушку тактовому сборщику данных.
+        self.taktalSlot = compile('','<string>','exec')        
 
     def addCondition(self, name, vec):
         """
@@ -81,10 +83,7 @@ class Engine:
         transition -- функция от N и dt перехода
         to -- куда??
         """
-        self.MCC[name] = MCC()
-        self.MCC[name].internal = internal
-        self.MCC[name].transition = transition
-        self.MCC[name].to = to
+        self.MCC[name] = MCC(internal, transition, to)
 
     def start(self):
         """
@@ -109,3 +108,6 @@ class Engine:
                 #запускаем переббор всех интегральных компартментов
                 for cmprt in self.MCC:
                     self.MCC[self.MCC[cmprt].to].add(self.MCC[cmprt].step(dt))
+                exec(self.taktalSlot)
+        exec(self.DC.slot.final)
+        #print "finale!"
