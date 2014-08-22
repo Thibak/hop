@@ -31,10 +31,22 @@ etree.tostring(ff)
 import lxml #.etree.ElementTree as ET
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
-from types import NoneType
+from types import NoneType, FloatType, ListType
 from datetime import datetime
 
+class X(object):
+    def __init__(self,_d={},**kwargs):
+        kwargs.update(_d)
+        self.__dict__=kwargs
+class Y(X):
+    def __getitem__(self,key):
+        return self.__dict__[key]
+    def __repr__(self):
+        #return 'Y:%s'%self.__dict__
+        return str(self.__dict__)
 
+    
+        
 def glue(l, f):
     """
     Склеить элементы из l функцией f
@@ -116,6 +128,13 @@ class Experiment():
             
     def setIter(self,iteration):
         self.meta.set('iteration', str(iteration))
+    
+    def addVScript(self, script):
+        vscript = self.Factory.vscript(script)
+        self.meta.append(vscript)
+    def addSScript(self, script):
+        sscript = self.Factory.sscript(script)
+        self.meta.append(sscript)
         
     def MakeMatrix(self, Xvar, XX, Yvar, YY):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
@@ -224,8 +243,68 @@ class Experiment():
         else: raise Exception('No status')
     def status(self):
             return self.meta.attrib['status'] 
+    def getVScript(self):
+        return self.meta.find('vscript').text
+    def getSScript(self):
+        return self.meta.find('sscript').text
 # -------- функции работы графического обработчика -------
     def getZ(self, nameZ):
         pass
         # возвращает матрицу, которая формируется из прочесываемых итемов. 
         # проверка на законченность вычислений
+        
+class DataMachine:
+    def __init__(self):
+        self.names = X()
+        self.erase()
+        
+    def erase(self): 
+        self.names.float = []
+        self.names.list = []    
+        self.val = {} 
+        self.data = {}
+        
+    # ------------ подготовка ------------
+    def LoadScripts(self, XMLi):
+        self.vscr = compile(XMLi.getVScript,'<string>', 'exec')
+        self.sscr = compile(XMLi.getSScript,'<string>', 'exec')
+        
+    def AnalizeModel(self, dictn):
+        for dataname in dictn:
+            if type(dictn(dataname)) == FloatType:
+                self.names.float.append(dataname)
+            if type(dictn(dataname)) == ListType:
+                self.names.list.append(dataname)
+
+        # подготавливаем слоты для данных      
+        self.val.update({k:[] for k in self.names.list + self.names.float})    
+    #-------------- постобработка -------------        
+
+    def addData(self, dc):
+        for dataname in self.names.list + self.names.float:
+            self.val[dataname].append(dc.getVal(dataname))
+        
+    def CollapseData(self):
+        """
+        Для скриптов интерфейс следующий:
+        для получения данных используем matrix и vector, которые list и nested list
+        для результатов используем data. дальше нужное имя
+        
+        В связи с форматом написать функцию извлечения данных getZ 40-ка строками выше
+        """
+        for mtrname in self.names.list:
+            matrix = self.val[mtrname]
+            data = Y()
+            exec(self.vscr)
+            self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
+            # страшно корявая реализация, но пусть будет 
+            #  проблема в том, что внутри мы храни
+            
+        for vecname in self.names.float:
+            vector = self.val[vecname]
+            data = Y()
+            exec(self.vscr)  
+            self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
+            
+    def PushData(self,XMLi):
+        XMLi.writeData(str(self.data))

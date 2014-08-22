@@ -12,15 +12,10 @@ from types import ListType, StringType
 from numpy import arange
 
 from MOb import EventContainer
+from hop.xmli import X
 
 # пока впишу сюда
-class X(object):
-    def __init__(self,_d={},**kwargs):
-        kwargs.update(_d)
-        self.__dict__=kwargs
-class Y(X):
-    def __repr__(self):
-        return '<Y:%s>'%self.__dict__
+
 
 
 # Наследник встроенного типа list дополненный автоматической сортировкой по признаку TimeWhen. 

@@ -3,11 +3,11 @@
 @author: russinow
 """
 from core import Engine
-from xmli import Experiment
+from xmli import Experiment, DataMachine
 from subprocess import call
 from code import interact 
 
-from types import FloatType, ListType
+ 
 
 # Создаем болванку для общедоступности
 ex = None
@@ -187,45 +187,41 @@ def calculation(exp):
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
     exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
-#3. формируем монтекарловские переменные
-    # МК переменные вытаскиваются из модели, это значит делаем это циклом
-    # нулевой цикл, для определения имен переменных в ДатаКоллекторе
-    data.names.float = []
-    data.names.list = []    
-    data.val = {}
-    e = Engine()
-    # НЕ запускаем модель, а только загружаем, для опрпделения типов 
-    exec(model,locals())
-    #e.start()
-    
-    # запускаем сортировщик
-    for dataname in e.DC.data.dict:
-        #if type(e.DC.data.__dict__[dataname]) in (FloatType, DictType)
-        #    data.names.append(dataname)
-        #    data.__dict__[dataname] 
-        if type(e.DC.data.getVal(dataname)) == FloatType:
-            data.names.float.append(dataname)
-        #    # далее идет весьма спорный момент, надо ли мне запихивать все это в неймспейс
-        #    data.__dict__[dataname] = e.DC.data.__dict__[dataname]
-        if type(e.DC.data.getVal(dataname)) == ListType:
-            data.names.list.append(dataname)
-        #    # далее идет весьма спорный момент, надо ли мне запихивать все это в неймспейс
-        #    data.__dict__[dataname] = e.DC.data.__dict__[dataname]
-    # подготавливаем слоты для данных      
-    data.val.update({k:[] for k in data.names.list + data.names.float})    
-#4. формируем монтекарловский цикл
-       
-    for MKiter in range(exp.iterations):
-#5. создаем ядро
+    <-------------   ОСТАНОВИЛСЯ ТУТ
+    #3. формируем монтекарловские переменные
+        # МК переменные вытаскиваются из модели, это значит делаем это циклом
+        # нулевой цикл, для определения имен переменных в ДатаКоллекторе
+        DM = DataMachine()
+        DM.LoadScripts(exp) # загружаем скрипты 
         e = Engine()
-        # запускаем модель
-        exec(model,locals())#<-- загружаем в локальный неймспейс
-        for dataname in data.names.list + data.names.float:
-            data.val[dataname].append(e.DC.data.getVal(dataname))
+        # НЕ запускаем модель, а только загружаем, для опрпделения типов, можно сделать стоп с нулевым временем....
+        exec(model,locals())
+        #e.start()
+        
+        # запускаем сортировщик
+        DM.AnalizeModel(e.DC.data.dict)
+    #4. формируем монтекарловский цикл
+           
+        for MKiter in range(exp.iterations):
+    #5. создаем ядро
+            e = Engine()
+            # запускаем модель
+            exec(model,locals())#<-- загружаем в локальный неймспейс
             
-#6. загружаем модель, характеристики модели
-#7. запускаем расчет
-#8. останов расчета по критерию (какому? Допилить в ядре. Прописывается в модели, кстати)
-#9. подсчет монтекарловских величин
-#10. конец
+            # ВАЖНО!! Догрузка итерируемых параметров, а на самом деле перегрузка.
+            = exp.Task['i'] 
+            = exp.Task['j']
+            = exp.Task['x']
+            = exp.Task['y']
+            
+    #7. запускаем расчет
+            e.start()
+    #8. останов расчета по критерию (какому? Допилить в ядре. Прописывается в модели, кстати)
+            #сбор данных
+            DM.addData(e.DC)
+    #9. подсчет монтекарловских величин
+        DM.CollapseData()  
+        DM.PushData(exp)
+        
+    #10. конец
     
