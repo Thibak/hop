@@ -103,7 +103,7 @@ class DataCollector:
         #if type(p) == StringType:
         if typeOf == 'v':
             self.data.__dict__[p] = list()
-        else: self.data.__dict__[p] = None
+        else: self.data.__dict__[p] = float()
         
         #if type(p) == ListType:
         #    self.data.__dict__.update(dict.fromkeys(p))
@@ -126,3 +126,7 @@ class DataCollector:
     #def makeEventCollector(self):#событийный
      #   pass
         # пожалуй пока не буду это вообще реализовывать
+    def getVal(self,name):
+        return(self.data.__dict__[name])
+    def dict(self):
+        return(self.data.__dict__)

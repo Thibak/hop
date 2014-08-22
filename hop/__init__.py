@@ -7,6 +7,8 @@ from xmli import Experiment
 from subprocess import call
 from code import interact 
 
+from types import FloatType, ListType
+
 # Создаем болванку для общедоступности
 ex = None
 
@@ -187,13 +189,40 @@ def calculation(exp):
     exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
 #3. формируем монтекарловские переменные
     # МК переменные вытаскиваются из модели, это значит делаем это циклом
+    # нулевой цикл, для определения имен переменных в ДатаКоллекторе
+    data.names.float = []
+    data.names.list = []    
+    data.val = {}
+    e = Engine()
+    # НЕ запускаем модель, а только загружаем, для опрпделения типов 
+    exec(model,locals())
+    #e.start()
+    
+    # запускаем сортировщик
+    for dataname in e.DC.data.dict:
+        #if type(e.DC.data.__dict__[dataname]) in (FloatType, DictType)
+        #    data.names.append(dataname)
+        #    data.__dict__[dataname] 
+        if type(e.DC.data.getVal(dataname)) == FloatType:
+            data.names.float.append(dataname)
+        #    # далее идет весьма спорный момент, надо ли мне запихивать все это в неймспейс
+        #    data.__dict__[dataname] = e.DC.data.__dict__[dataname]
+        if type(e.DC.data.getVal(dataname)) == ListType:
+            data.names.list.append(dataname)
+        #    # далее идет весьма спорный момент, надо ли мне запихивать все это в неймспейс
+        #    data.__dict__[dataname] = e.DC.data.__dict__[dataname]
+    # подготавливаем слоты для данных      
+    data.val.update({k:[] for k in data.names.list + data.names.float})    
 #4. формируем монтекарловский цикл
+       
     for MKiter in range(exp.iterations):
 #5. создаем ядро
         e = Engine()
         # запускаем модель
         exec(model,locals())#<-- загружаем в локальный неймспейс
-        
+        for dataname in data.names.list + data.names.float:
+            data.val[dataname].append(e.DC.data.getVal(dataname))
+            
 #6. загружаем модель, характеристики модели
 #7. запускаем расчет
 #8. останов расчета по критерию (какому? Допилить в ядре. Прописывается в модели, кстати)
