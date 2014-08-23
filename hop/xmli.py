@@ -82,13 +82,15 @@ class Experiment():
             out += self.meta.attrib['status']
         except AttributeError:
             pass          
-        out += "Расчет завершен на "       
+        out += "\nРасчет завершен на "       
         try: 
             out += str(self.progress())
             out += '%'
         except AttributeError:
-            out += '0%'        
-
+            out += '0%'   
+        out += "\nЧто составляет "       
+        out += self.rate() 
+        
         return out   
         
 # ----------- функции работы генератора задачи ---------
@@ -136,7 +138,7 @@ class Experiment():
         sscript = self.Factory.sscript(script)
         self.meta.append(sscript)
         
-    def MakeMatrix(self, Xvar, XX, Yvar, YY):
+    def makeMatrix(self, Xvar, XX, Yvar, YY):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
         # что еще надо в матрице?
         if self.meta.attrib['status'] != 'Null':
@@ -241,6 +243,8 @@ class Experiment():
         elif self.meta.attrib['status'] == 'progress':
             return len(self.tasks.findall())/(len(self.tasks.findall())+len(self.data.findall()))*100
         else: raise Exception('No status')
+    def rate(self):
+        return str(len(self.tasks.findall())) + ' from ' + str(len(self.tasks.findall())+len(self.data.findall()))
     def status(self):
             return self.meta.attrib['status'] 
     def getVScript(self):
