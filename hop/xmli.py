@@ -157,7 +157,9 @@ class Experiment():
         self.save()
     def makeVec(self, Xvar, XX):
         if self.meta.attrib['status'] != 'Null':
-            raise Exception('Task already given')
+            print('Task already given')
+            break
+            #raise Exception('Task already given')
         self.meta.set('TaskType', 'V')
         vec = self.Factory.vec()
         self.meta.append(vec)
@@ -220,6 +222,16 @@ class Experiment():
         self.Task['j'] = int(self.CT.attrib['j'])
         self.Task['x'] = int(self.CT.attrib['x'])
         self.Task['y'] = int(self.CT.attrib['y'])
+    def delTask(self):
+        if self.meta.attrib['status'] != 'Null':
+            print('задача не задана')
+        elif self.meta.attrib['status'] == 'task':
+            self.tasks.clear()
+            self.meta.set('status', 'Null')
+        else:
+            print ('Расчет начат, нельзя удалить начатую задачу')
+        #raise Exception('Task already given')
+        
     def writeData(self, data):
         """
         вопросыЖ
