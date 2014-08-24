@@ -130,14 +130,25 @@ def start():
             print('Что-то не то. Закрываюсь.')
     elif ex.status() == 'progress':
         print ex        
-        yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n):")
+        yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n/число прогонов):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
             pass# начать выполнение
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
-            print('Что-то не то. Закрываюсь.')
+            try: 
+                n = int(yn)
+                if n<0:
+                    raise SyntaxWarning
+            except SyntaxWarning:
+                print ('количество операций не может быть меньше нуля')
+                break
+            except ValueError:
+               print('Что-то не то. Закрываюсь.') 
+            else:
+                pass# начать выполнение
+            
     elif ex.status() == 'Null':
         print ex
         yn = raw_input("Это только заготовка, Вы хотите создать задание?\n(y/n):")
@@ -148,19 +159,30 @@ def start():
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
-            try int(yn):
             print('Что-то не то. Закрываюсь.')
+                
 
     elif ex.status() == 'task':
         print ex
-        yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n):")
+        yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n/количество итераций):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
             pass# начать выполнение
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
-            print('Что-то не то. Закрываюсь.')
+            try: 
+                n = int(yn)
+                if n<0:
+                    raise SyntaxWarning
+            except SyntaxWarning:
+                print ('количество операций не может быть меньше нуля')
+                break
+            except ValueError:
+                print('Что-то не то. Закрываюсь.') 
+                break
+            else:
+                pass# начать выполнение
     else:
         print ex
         yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
@@ -181,7 +203,7 @@ def new(filename):
         
      
 # Итератор рассчета
-def calculation(exp):
+def calculation(exp, n = float('inf')):
     # проверка статуса модели 
     #примерная структура вычислителя:
 #1. загружаем файл структуры модели
@@ -190,7 +212,8 @@ def calculation(exp):
     #ВНИМАНИЕ!! После компиляции содержимое файла уже не модифицируется, т.ч. надо это учесть при итерировании
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
-    while True:
+    while n != 0:
+        n -= 1
         try:
             exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
     #3. формируем монтекарловские переменные

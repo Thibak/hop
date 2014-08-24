@@ -125,7 +125,7 @@ class DataCollector:
     # функции второго уровня
     def makePeriodicCollector(self, name, period, stop):#периодический
         for i in arange(0, stop, period):
-            EventContainer(i,self.data.__dict__[name])
+            EventContainer(i,self.slot.__dict__[name])
             
     def makeFinalCollector(self, s):#конечный
         self.addSlot('final', s)
