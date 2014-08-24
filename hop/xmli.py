@@ -28,10 +28,9 @@ etree.tostring(ff)
 
 """
 
-import lxml #.etree.ElementTree as ET
+#import lxml #.etree.ElementTree as ET
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
-from types import NoneType, FloatType, ListType
 from datetime import datetime
 
 class X(object):
@@ -212,7 +211,7 @@ class Experiment():
         # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
         self.Task = {}
         self.CT = self.root.find('.//task')
-        if type(self.CT) == NoneType:
+        if type(self.CT) == type(None):
             self.meta.set('status', 'complete')
             raise IndexError # попробовать выработку специфического ексепшена.
             
@@ -287,9 +286,9 @@ class DataMachine:
         
     def AnalizeModel(self, dictn):
         for dataname in dictn:
-            if type(dictn(dataname)) == FloatType:
+            if type(dictn(dataname)) == float:
                 self.names.float.append(dataname)
-            if type(dictn(dataname)) == ListType:
+            if type(dictn(dataname)) == list:
                 self.names.list.append(dataname)
 
         # подготавливаем слоты для данных      

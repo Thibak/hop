@@ -148,7 +148,7 @@ Eval vs exec
     создать метод удаления задания
 
 Далее:
-    
+    добавить константы в сервер
     дописать метод блокировки модели (а вернее вытягивания копии в XML)
     закидывать таймлайн в метаинформацию
     переименовать XMLI во что-то вразумительное.
@@ -431,3 +431,145 @@ class Y(X):
     def __repr__(self):
         return '<Y:%s>'%self.__dict__
 
+----------------------------------------
+
+
+
+Проверять тип, или компилировать константы:
+>>> def a(): 
+...  if type(d) == CodeType: 
+...   return eval(d) 
+...  else: return d
+... 
+>>> def b():
+...  if type(c) == CodeType: 
+...   return eval(d) 
+...  else: return d
+... 
+>>> def b():
+...  if type(c) == CodeType: 
+...   return eval(c) 
+...  else: return c
+... 
+>>> c = 1
+>>> d = compile('1','','eval')
+>>> compare(a,b,5)
+0.102 0.043 -57% slower
+0.082 0.04 -51% slower
+0.082 0.04 -51% slower
+0.083 0.04 -51% slower
+0.081 0.04 -50% slower
+0.087 0.043 -50% slower
+0.081 0.041 -49% slower
+0.084 0.041 -51% slower
+0.082 0.041 -50% slower
+0.084 0.04 -52% slower
+
+Разница в исполнении существует, значит быстрее проверять чем прекомпелировать
+
+------------------------------------------
+
+type() или  isinstance()
+
+>>> def a(): type(d) == 1
+... 
+>>> def b(): isinstance(d,int)
+... 
+>>> compare(a,b,5)
+0.059 0.061 3% slower
+0.04 0.062 54% slower
+0.044 0.061 38% slower
+0.042 0.06 42% slower
+0.044 0.063 43% slower
+0.041 0.061 48% slower
+0.042 0.06 42% slower
+0.042 0.06 42% slower
+0.042 0.065 54% slower
+0.042 0.062 47% slower
+
+>>> def a(): type(d) == CodeType
+... 
+>>> def b(): isinstance(d,CodeType)
+... 
+>>> compare(b,a,5)
+0.037 0.042 13% slower
+0.035 0.039 11% slower
+0.036 0.039 8% slower
+0.035 0.038 8% slower
+0.037 0.042 13% slower
+0.036 0.037 2% slower
+0.035 0.039 11% slower
+0.037 0.037 0% slower
+0.037 0.037 0% slower
+0.035 0.038 8% slower
+
+>>> def a(): type(d) == IntType
+... 
+>>> def b(): isinstance(d,IntType)
+... 
+>>> compare(a,b,5)
+0.066 0.061 -7% slower
+0.038 0.058 52% slower
+0.038 0.058 52% slower
+0.039 0.058 48% slower
+0.037 0.062 67% slower
+0.04 0.062 54% slower
+0.038 0.058 52% slower
+0.039 0.06 53% slower
+0.039 0.059 51% slower
+0.039 0.059 51% slower
+
+>>> def a(): type(d) == IntType
+... 
+>>> def b(): type(c) == IntType
+... 
+>>> compare(a,b,5)
+0.039 0.042 7% slower
+0.038 0.042 10% slower
+0.038 0.044 15% slower
+0.038 0.041 7% slower
+0.038 0.042 10% slower
+0.038 0.041 7% slower
+0.039 0.052 33% slower
+0.039 0.042 7% slower
+0.038 0.042 10% slower
+0.038 0.042 10% slower
+>>> def a(): isinstance(d,IntType)
+... 
+>>> def b(): isinstance(c,IntType)
+... 
+>>> compare(b,a,5)
+0.043 0.062 44% slower
+0.044 0.057 29% slower
+0.039 0.057 46% slower
+0.039 0.058 48% slower
+0.039 0.058 48% slower
+0.039 0.058 48% slower
+0.039 0.058 48% slower
+0.038 0.059 55% slower
+0.038 0.061 60% slower
+0.042 0.064 52% slower
+>>> 
+
+ВЫВОД!
+Сравнивать лучше с CodeType методом isinstance()
+
+------------------------------------
+
+>>> def a(): isinstance(d,int)
+... 
+>>> def b(): isinstance(d,IntType)
+... 
+>>> compare(b,a,5)
+0.063 0.066 4% slower
+0.065 0.066 1% slower
+0.064 0.069 7% slower
+0.066 0.067 1% slower
+0.063 0.073 15% slower
+0.064 0.069 7% slower
+0.068 0.069 1% slower
+0.062 0.067 8% slower
+0.063 0.067 6% slower
+0.063 0.067 6% slower
+
+Так-то!

@@ -7,8 +7,7 @@ Created on Fri Aug 08 18:18:59 2014
 AOb.py -- Auxiliary Objects
 """
 from operator import attrgetter
-from collections import namedtuple
-from types import ListType, StringType
+#from collections import namedtuple
 from numpy import arange
 
 from MOb import EventContainer
@@ -77,13 +76,30 @@ class FeedBackSever:
         """
         Можно сразу словарь запузыривать, со слотами
         """
-        self.ValDic.append({name:di})
+        cultivate_dict = {}
+        for item in di:
+            if isinstance(di[item], (int, float)): 
+                cultivate_dict[item] = di[item]
+            elif isinstance(di[item], str):
+                cultivate_dict[item] = compile(di[item],'<string>','eval')
+            else:
+                raise Exception('Словарь сервера событий допускает действительные числа или строковые скрипты')
+        self.ValDic.append({name:cultivate_dict})
         
     def addSlot(self, name, d, st):
-        self.ValDic[d][name] = st
+        if isinstance(st, (int, float)): 
+            self.ValDic[d][name] = st
+        elif isinstance(st, str):
+            self.ValDic[d][name] = compile(st,'<string>','eval')
+        else:
+            raise Exception('Словарь сервера событий допускает действительные числа или строковые скрипты')
         
     def val(self,name):
-        return(eval(self.ValDic[self.CureDict][name]))
+        item = self.ValDic[self.CureDict][name]
+        if isinstance(item, (int, float)): 
+            return item
+        elif isinstance(item, str):
+            return(eval(item))
 
 def functionalize(f):f()
 
