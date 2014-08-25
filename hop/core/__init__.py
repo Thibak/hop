@@ -17,6 +17,7 @@ from MOb import SCC
 from MOb import MCC
 from AOb import EventServer
 from AOb import FeedBackSever, DataCollector
+from hop.DataDriver import Y, minimal_function
 
 #импорт для работы скрипта описания модели:
 from AOb import Event
@@ -24,12 +25,11 @@ from MOb import EventContainer
 from MOb import StopEvent
 # Главный объект
 
-def minimal_function():pass
-
 class Engine:
     """
     
     """
+    const = Y()
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
         self.cell = cell

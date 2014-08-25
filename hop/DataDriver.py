@@ -33,30 +33,33 @@ from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
 from datetime import datetime
 
-class X(object):
+class minimal_function(object): pass
+
+class Y(minimal_function):
     def __init__(self,_d={},**kwargs):
         kwargs.update(_d)
         self.__dict__=kwargs
-class Y(X):
     def __getitem__(self,key):
         return self.__dict__[key]
     def __repr__(self):
         #return 'Y:%s'%self.__dict__
         return str(self.__dict__)
+    def set(self,name, val):
+        self.__dict__[name] = val
 
     
         
-def glue(l, f):
-    """
-    Склеить элементы из l функцией f
-    Причем, вектор элементов может содержать любые элементы
-    """
-    for i in range(len(l)):
-        f.append(l[i])
-    return f
+#def glue(l, f):
+#    """
+#    Склеить элементы из l функцией f
+#    Причем, вектор элементов может содержать любые элементы
+#    """
+#    for i in range(len(l)):
+#        f.append(l[i])
+#    return f
 
 
-class Experiment():
+class XMLDriver():
     def __init__(self, filename=None):
         if filename == None:
             pass # м.б. вызов new()

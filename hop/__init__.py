@@ -3,7 +3,7 @@
 @author: russinow
 """
 from core import Engine
-from xmli import Experiment, DataMachine
+from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
 
@@ -44,7 +44,7 @@ null_model = """
 ############# Модель системы кроветсоврения #############
 #########################################################
 # Описание:
-# все функции вызываются как методы класса e. (* точнее e является сущностью класса Experiment)
+# все функции вызываются как методы класса e. (* точнее e является сущностью класса XMLDriver)
 # Модель состоит из двух частей: модуль клеточной динамики и блочной модели
 # Для описания первого служит система состояний (Condition). Состояние состоит из названия сосоятония клетки и вектора событий (Event).
 # для добавления события служит вызов функции
@@ -102,7 +102,7 @@ null_model = """
 def load(filename):
     global ex
     try:
-        ex = Experiment(filename)
+        ex = XMLDriver(filename)
     except IOError:
         print('No such file')
 
@@ -114,7 +114,7 @@ def start():
     """
     if ex == None:
         print("""
-        Experiment not loaded. Please load or make new
+        XML file not loaded. Please load or make new
             - load(filename)
             - new()        
         """)
@@ -197,7 +197,7 @@ def start():
 
 def new(filename):
     global ex
-    ex = Experiment()
+    ex = XMLDriver()
     ex.new(filename)
     print new_task_help
         
@@ -237,6 +237,7 @@ def calculation(exp, n = float('inf')):
                 exec(model,locals())#<-- загружаем в локальный неймспейс
                 
                 # ВАЖНО!! Догрузка итерируемых параметров, а на самом деле перегрузка.
+                Матрица или вектор?
                 = exp.Task['i'] 
                 = exp.Task['j']
                 = exp.Task['x']

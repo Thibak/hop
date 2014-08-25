@@ -11,7 +11,7 @@ from operator import attrgetter
 from numpy import arange
 
 from MOb import EventContainer
-from hop.xmli import X
+from hop.DataDriver import Y
 
 # пока впишу сюда
 
@@ -104,8 +104,8 @@ class FeedBackSever:
 def functionalize(f):f()
 
 class DataCollector:
-    data = X()
-    slot = X()
+    data = Y()
+    slot = Y()
     def __init__(self):
         self.addSlot('final', '')
         self.addSlot('taktal', '')
