@@ -92,6 +92,7 @@ class XMLDriver():
             out += '0%'   
         out += "\nЧто составляет "       
         out += self.rate() 
+        out += "задач"
         
         return out   
         
@@ -212,18 +213,37 @@ class XMLDriver():
         """
         # мы находим какой-то (любой) таск, и возвращаем словарь атрибутов? 
         # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
+        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
         self.Task = {}
         self.CT = self.root.find('.//task')
         if type(self.CT) == type(None):
             self.meta.set('status', 'complete')
             raise IndexError # попробовать выработку специфического ексепшена.
-            
+        if self.tasks.attrib.get('TaskType') == 'M':
+            self.Task['TaskType'] = 'M'
+            self.Task['Xvar'] = str(self.root.find('.//x').attrib.get('name'))
+            self.Task['Yvar'] = str(self.root.find('.//y').attrib.get('name'))           
+            #self.Task['i'] = int(self.CT.attrib.get('i'))
+            #self.Task['j'] = int(self.CT.attrib.get('j'))
+            self.Task['x'] = int(self.CT.attrib.get('x'))
+            self.Task['y'] = int(self.CT.attrib.get('y'))
+        elif self.tasks.attrib.get('TaskType') == 'V':
+            self.Task['TaskType'] = 'M'
+            self.Task['Xvar'] = str(self.root.find('.//x').attrib.get('name'))           
+            self.Task['i'] = int(self.CT.attrib.get('i'))
+            self.Task['x'] = int(self.CT.attrib.get('x'))
+        else:
+            raise Exeption('ошибка в файле (нет типа задания)')
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
         # хотя можно словарь сделать, как элементарный контейнер
-        self.Task['i'] = int(self.CT.attrib['i'])
-        self.Task['j'] = int(self.CT.attrib['j'])
-        self.Task['x'] = int(self.CT.attrib['x'])
-        self.Task['y'] = int(self.CT.attrib['y'])
+        #делаем подгрузку через try. Через сортировку того, что может
+        # перенес выше
+        
+        def loadConst(self):
+            const_dict = {}
+            const_dict[self.Task['Xvar']] = self.Task['x']
+            const_dict[self.Task['Yvar']] = self.Task['y']
+            return const_dict 
     def delTask(self):
         if self.meta.attrib['status'] != 'Null':
             print('задача не задана')
@@ -241,7 +261,8 @@ class XMLDriver():
         2. что писать? пока стоит рабочая заглушка
         3. определитель типа 
         """
-        DI = self.Factory.item(str(data), i = str(self.i), j = str(self.j), x = str(self.x), y = str(self.y))
+        <----------------- тут доделать записываемые параметры. и и жи достаются неправильно и надо еще что-то записывать. А если не матрица!?
+        DI = self.Factory.item(str(data), i = str(self.Task.i), j = str(self.Task.j), x = str(self.Task.x), y = str(self.Task.y))
         self.data.append(DI)
         self.CT.clear()
         self.meta.set('status', 'progress')
