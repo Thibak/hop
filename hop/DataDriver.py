@@ -33,8 +33,12 @@ from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
 from datetime import datetime
 from os.path import exists
+import numpy as np
 
-from hop import mod_path
+#import os
+
+#from hop import mod_path
+mod_path = 'hop/models/'
 
 class minimal_function(object): pass
 
@@ -64,6 +68,7 @@ class Y(minimal_function):
 
 class XMLDriver():
     def __init__(self, filename=None):
+        self.Factory = ElementMaker()
         if filename == None:
             pass # м.б. вызов new()
         else:
@@ -92,11 +97,13 @@ class XMLDriver():
             out += str(self.progress())
             out += '%'
         except AttributeError:
-            out += '0%'   
-        out += "\nЧто составляет "       
-        out += self.rate() 
-        out += "задач"
-        
+            out += '0%'  
+        try:
+            out += "\nЧто составляет "       
+            out += self.rate() 
+            out += "задач"
+        except:
+            pass
         return out   
         
 # ----------- функции работы генератора задачи ---------
@@ -108,7 +115,6 @@ class XMLDriver():
         except:
             self.filename = filename
             self.root = etree.XML('<root></root>')
-            self.Factory = ElementMaker()
             self.tree = etree.ElementTree(self.root)
             # meta
             self.meta = self.Factory.meta()
@@ -144,9 +150,11 @@ class XMLDriver():
         sscript = self.Factory.sscript(script)
         self.meta.append(sscript)
         
-    def makeMatrix(self, Xvar, XX, Yvar, YY):
+    def makeMatrix(self, Xvar, xstart, xstop, xstep, Yvar, ystart, ystop, ystep):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
         # что еще надо в матрице?
+        XX = np.arange(xstart, xstop, xstep)
+        YY = np.arange(ystart, ystop, ystep)
         if self.meta.attrib['status'] != 'Null':
             raise Exception('Task already given')
         self.meta.set('TaskType', 'M')
@@ -161,10 +169,11 @@ class XMLDriver():
                 self.makeTask(i,j,XX[i][j],YY[i][j])
         self.meta.set('status', 'task')
         self.save()
-    def makeVec(self, Xvar, XX):
+    def makeVec(self, Xvar, start, stop, step):
+        XX = np.arange(start, stop, step)
         if self.meta.attrib['status'] != 'Null':
             print('Task already given')
-            break
+            return
             #raise Exception('Task already given')
         self.meta.set('TaskType', 'V')
         vec = self.Factory.vec()
@@ -195,6 +204,8 @@ class XMLDriver():
     def open(self, filename):
         if filename[-3:] != '.xml':
             filename += '.xml'
+#        print (os.getcwd())
+#        print(filename)
         self.filename = filename
         self.tree = etree.parse(filename)
         self.root = self.tree.getroot()
@@ -298,10 +309,10 @@ class XMLDriver():
         elif self.meta.attrib['status'] == 'complete':
             return 100
         elif self.meta.attrib['status'] == 'progress':
-            return len(self.tasks.findall())/(len(self.tasks.findall())+len(self.data.findall()))*100
+            return len(self.tasks.findall('.//'))/(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))*100
         else: raise Exception('No status')
     def rate(self):
-        return str(len(self.tasks.findall())) + ' from ' + str(len(self.tasks.findall())+len(self.data.findall()))
+        return str(len(self.tasks.findall('.//'))) + ' from ' + str(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))
     def status(self):
             return self.meta.attrib['status'] 
     def getVScript(self):
@@ -354,6 +365,8 @@ class DataMachine:
         В связи с форматом написать функцию извлечения данных getZ 40-ка строками выше
         """
         for mtrname in self.names.list:
+            #<----------------------
+            # непонятно почему я не присваиваю matrix ни куда..
             matrix = self.val[mtrname]
             data = Y()
             exec(self.vscr)

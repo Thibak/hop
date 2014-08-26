@@ -6,13 +6,14 @@ from core import Engine
 from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
+from sys import exit
 
  
 
 # Создаем болванку для общедоступности
 ex = None
-ex_path = 'experiments/'
-mod_path = 'models/'
+ex_path  = 'hop/experiments/'
+mod_path = 'hop/models/'
 
 #--------------------------------------
 # хелпы:
@@ -126,11 +127,12 @@ def load(filename):
         ex = XMLDriver(filename)
     except IOError:
         print('No such file\n')
-        yn = raw_input("Вы хотите создать файл с таким именем? \n(y/n):")
-        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
+        yn = raw_input("Would you like? \n(y/n):")
+        if   yn in 'yYуУyesдД':
             new(filename)
         else:
-            print('Программа закрывается, досвидания')
+            print('closing. Dos!')
+            exit()
 
 
 def start():
@@ -148,10 +150,10 @@ def start():
     elif ex.status() == 'complete':
         print ex
         yn = raw_input("Расчет завершен. Прейти в интерактивный режим для построения графики?\n(y/n):")
-        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
+        if   yn in 'yYуУyesдД':
             print graph_help
             interact(local=locals()) # перейти в интерактивный режим, вывести хелп по графике
-        elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
+        elif yn in 'nNNoxXexitquitqQ':
             return
         else:
             print('Что-то не то. Закрываюсь.')
@@ -159,9 +161,9 @@ def start():
         print ex        
         yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n/число прогонов):")
         # селектор
-        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
+        if   yn in 'yYуУyesдД':
             calculation(ex)# начать выполнение
-        elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
+        elif yn in 'nNNoxXexitquitqQ':
             return
         else:
             try: 
@@ -170,7 +172,7 @@ def start():
                     raise SyntaxWarning
             except SyntaxWarning:
                 print ('количество операций не может быть меньше нуля')
-                break
+                #break
             except ValueError:
                print('Что-то не то. Закрываюсь.') 
             else:
@@ -178,12 +180,13 @@ def start():
             
     elif ex.status() == 'Null':
         print ex
-        yn = raw_input("Это только заготовка, Вы хотите создать задание?\n(y/n):")
+        yn = raw_input("It's just a dummy. Would you like to make task?\n(y/n):")
         # селектор
-        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
-            print new_task_help            
-            interact(local=locals()) # перейти в интерактивный режим, вывести хелп по созданию задания
-        elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
+        if   yn in 'yYуУyesдД':
+            print new_task_help 
+            interact(local=dict(globals(), **locals()))
+#            interact(local=locals()) # перейти в интерактивный режим, вывести хелп по созданию задания
+        elif yn in 'nNNoxXexitquitqQ':
             return
         else:
             print('Что-то не то. Закрываюсь.')
@@ -193,9 +196,9 @@ def start():
         print ex
         yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n/количество итераций):")
         # селектор
-        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
+        if   yn in 'yYуУyesдД':
             calculation(ex)# начать выполнение
-        elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
+        elif yn in 'nNNoxXexitquitqQ':
             return
         else:
             try: 
@@ -204,20 +207,20 @@ def start():
                     raise SyntaxWarning
             except SyntaxWarning:
                 print ('количество операций не может быть меньше нуля')
-                break
+                #break
             except ValueError:
                 print('Что-то не то. Закрываюсь.') 
-                break
+                #break
             else:
                 calculation(ex,n)# начать выполнение
     else:
         print ex
         yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
-        if   yn == 'e' or 'E' or 'Е' or 'е' or 'edit':
+        if   yn in 'eEЕеedit':
             call("notepad "+ str(ex.filename))
-        elif yn == 'c' or 'с' or 'C' or 'С' or 'check':
+        elif yn in 'cсCСcheck':
             call(str(ex.filename))
-        elif yn == 'x' or 'х' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
+        elif yn in 'nNNoxXxitquitqQ':
             return
         else:
             print('Что-то опять не то. Закрываюсь.')
