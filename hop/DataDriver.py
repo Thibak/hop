@@ -32,6 +32,9 @@ etree.tostring(ff)
 from lxml.builder import ElementMaker
 from lxml import etree #<-- вспомогательная функция для сериализации
 from datetime import datetime
+from os.path import exists
+
+from hop import mod_path
 
 class minimal_function(object): pass
 
@@ -178,8 +181,16 @@ class XMLDriver():
     def makeVTask(self,i,x):
         vtask = self.Factory.vtask(i = str(i), x = str(x))
         self.tasks.append(vtask)
-    def setModel(self, name):
-        self.meta.set('modelFN', str(name))
+    def setModel(self, filename):
+        if '/' not in filename:
+            filename = mod_path + filename
+        if filename[-2:] != '.py':
+            filename += '.py' 
+        if exists(filename):
+            self.meta.set('modelFN', str(filename))
+        else:
+            print "No such file. Model not added"
+        
 # ------------функции работы парсера существующего файла  -------------------
     def open(self, filename):
         if filename[-3:] != '.xml':

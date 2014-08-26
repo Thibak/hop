@@ -11,6 +11,8 @@ from code import interact
 
 # Создаем болванку для общедоступности
 ex = None
+ex_path = 'experiments/'
+mod_path = 'models/'
 
 #--------------------------------------
 # хелпы:
@@ -101,10 +103,18 @@ null_model = """
 
 def load(filename):
     global ex
+    if '/' not in filename:
+        filename = ex_path + filename
     try:
         ex = XMLDriver(filename)
     except IOError:
-        print('No such file')
+        print('No such file\n')
+        yn = raw_input("Вы хотите создать файл с таким именем? \n(y/n):")
+        if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
+            new(filename)
+        else:
+            print('Программа закрывается')
+
 
 def start():
     global ex
@@ -133,7 +143,7 @@ def start():
         yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n/число прогонов):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
-            pass# начать выполнение
+            calculation(ex)# начать выполнение
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
@@ -147,7 +157,7 @@ def start():
             except ValueError:
                print('Что-то не то. Закрываюсь.') 
             else:
-                pass# начать выполнение
+                calculation(ex,n)# начать выполнение
             
     elif ex.status() == 'Null':
         print ex
@@ -167,7 +177,7 @@ def start():
         yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n/количество итераций):")
         # селектор
         if   yn == 'y' or 'Y' or 'у' or 'У' or 'yes' or 'д' or 'Д' or '':
-            pass# начать выполнение
+            calculation(ex)# начать выполнение
         elif yn == 'n' or 'N' or 'No' or 'x' or 'X' or 'exit' or 'quit' or 'q' or 'Q':
             return
         else:
@@ -182,7 +192,7 @@ def start():
                 print('Что-то не то. Закрываюсь.') 
                 break
             else:
-                pass# начать выполнение
+                calculation(ex,n)# начать выполнение
     else:
         print ex
         yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
@@ -197,6 +207,8 @@ def start():
 
 def new(filename):
     global ex
+    if '/' not in filename:
+        filename = ex_path + filename
     ex = XMLDriver()
     ex.new(filename)
     print new_task_help
