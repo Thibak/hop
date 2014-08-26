@@ -237,11 +237,7 @@ def calculation(exp, n = float('inf')):
                 exec(model,locals())#<-- загружаем в локальный неймспейс
                 
                 # ВАЖНО!! Догрузка итерируемых параметров, а на самом деле перегрузка.
-                Матрица или вектор?
-                = exp.Task['i'] 
-                = exp.Task['j']
-                = exp.Task['x']
-                = exp.Task['y']
+                e.const.__dict__.update(exp.loadConst())
                 
         #7. запускаем расчет
                 e.start()

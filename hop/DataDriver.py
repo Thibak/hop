@@ -213,37 +213,42 @@ class XMLDriver():
         """
         # мы находим какой-то (любой) таск, и возвращаем словарь атрибутов? 
         # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
-        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
-        self.Task = {}
+        
         self.CT = self.root.find('.//task')
         if type(self.CT) == type(None):
             self.meta.set('status', 'complete')
             raise IndexError # попробовать выработку специфического ексепшена.
+        self.Task = Y()
+#        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
+        #self.Task = {}
         if self.tasks.attrib.get('TaskType') == 'M':
-            self.Task['TaskType'] = 'M'
-            self.Task['Xvar'] = str(self.root.find('.//x').attrib.get('name'))
-            self.Task['Yvar'] = str(self.root.find('.//y').attrib.get('name'))           
-            #self.Task['i'] = int(self.CT.attrib.get('i'))
-            #self.Task['j'] = int(self.CT.attrib.get('j'))
-            self.Task['x'] = int(self.CT.attrib.get('x'))
-            self.Task['y'] = int(self.CT.attrib.get('y'))
+            self.Task.TaskType = 'M'
+            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
+            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
+            self.Task.i = int(self.CT.attrib.get('i'))
+            self.Task.j = int(self.CT.attrib.get('j'))
+            self.Task.x = int(self.CT.attrib.get('x'))
+            self.Task.y = int(self.CT.attrib.get('y'))
         elif self.tasks.attrib.get('TaskType') == 'V':
-            self.Task['TaskType'] = 'M'
-            self.Task['Xvar'] = str(self.root.find('.//x').attrib.get('name'))           
-            self.Task['i'] = int(self.CT.attrib.get('i'))
-            self.Task['x'] = int(self.CT.attrib.get('x'))
+            self.Task.TaskType = 'V'
+            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
+            self.Task.i = int(self.CT.attrib.get('i'))
+            self.Task.x = int(self.CT.attrib.get('x'))
         else:
-            raise Exeption('ошибка в файле (нет типа задания)')
+            raise Exception('ошибка в файле (нет типа задания)')
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
         # хотя можно словарь сделать, как элементарный контейнер
         #делаем подгрузку через try. Через сортировку того, что может
         # перенес выше
         
-        def loadConst(self):
-            const_dict = {}
-            const_dict[self.Task['Xvar']] = self.Task['x']
-            const_dict[self.Task['Yvar']] = self.Task['y']
-            return const_dict 
+    def loadConst(self):
+        """
+        Возвращает dict, которым делаем апдейт словаря констант
+        """
+        const_dict = {}
+        const_dict[self.Task.Xvar] = self.Task.x
+        const_dict[self.Task.Yvar] = self.Task.y
+        return const_dict 
     def delTask(self):
         if self.meta.attrib['status'] != 'Null':
             print('задача не задана')
@@ -261,12 +266,18 @@ class XMLDriver():
         2. что писать? пока стоит рабочая заглушка
         3. определитель типа 
         """
-        <----------------- тут доделать записываемые параметры. и и жи достаются неправильно и надо еще что-то записывать. А если не матрица!?
-        DI = self.Factory.item(str(data), i = str(self.Task.i), j = str(self.Task.j), x = str(self.Task.x), y = str(self.Task.y))
+        #<----------------- тут доделать записываемые параметры. и и жи достаются неправильно и надо еще что-то записывать. А если не матрица!?
+        if self.Task.TaskType == 'M':
+            DI = self.Factory.item(str(data), i = str(self.Task.i), j = str(self.Task.j), x = str(self.Task.x), y = str(self.Task.y))
+        elif self.Task.TaskType == 'V':
+            DI = self.Factory.item(str(data), i = str(self.Task.i), x = str(self.Task.x))
+        else:
+            print "ошибка записи данных, нет типа задачи, битый Task.TaskType. Результаты не записаны"
         self.data.append(DI)
         self.CT.clear()
         self.meta.set('status', 'progress')
         self.save()
+        
     def progress(self):
         """
         Возвращает процент выполненной работы
