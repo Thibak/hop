@@ -137,7 +137,8 @@ class cell(EventContainer):
 #        i = numpy.argmin(act) #определяем какое из событий таки ближайшее
 
         # Достаём формулы
-        # выкидываем время до события по формулам        
+        # выкидываем время до события по формулам  
+             
         times = []
         for i in range(len(self.SCC[self.CureCond].vec)):
             times.append(eval(self.SCC[self.CureCond].vec[i].fun))
@@ -192,6 +193,7 @@ class cell(EventContainer):
         self.SCC[self.CureCond].remCell()
         self.CureCond = cmprt
         self.SCC[self.CureCond].addCell()
+        self.GenEv()
 
 
     def apoptosys(self):
