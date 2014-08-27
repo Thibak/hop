@@ -3,6 +3,7 @@
 @author: russinow
 """
 from core import Engine
+from core.MOb import StopEvent
 from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
@@ -162,7 +163,7 @@ def start():
         yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n/число прогонов):")
         # селектор
         if   yn in 'yYуУyesдД':
-            calculation(ex)# начать выполнение
+            calculate(ex)# начать выполнение
         elif yn in 'nNNoxXexitquitqQ':
             return
         else:
@@ -176,7 +177,7 @@ def start():
             except ValueError:
                print('Что-то не то. Закрываюсь.') 
             else:
-                calculation(ex,n)# начать выполнение
+                calculate(ex,n)# начать выполнение
             
     elif ex.status() == 'Null':
         print ex
@@ -194,12 +195,15 @@ def start():
 
     elif ex.status() == 'task':
         print ex
-        yn = raw_input("Задание на расчет. Начать выполнение?\n(y/n/количество итераций):")
+        yn = raw_input("Task. Start?\n(y/n/number of iteration/e):")
         # селектор
-        if   yn in 'yYуУyesдД':
-            calculation(ex)# начать выполнение
+        if yn in 'eEЕеedit':
+            print new_task_help 
+            interact(local=dict(globals(), **locals()))
         elif yn in 'nNNoxXexitquitqQ':
             return
+        elif   yn in 'yYуУyesдД':
+            calculate(ex)# начать выполнение
         else:
             try: 
                 n = int(yn)
@@ -212,7 +216,7 @@ def start():
                 print('Что-то не то. Закрываюсь.') 
                 #break
             else:
-                calculation(ex,n)# начать выполнение
+                calculate(ex,n)# начать выполнение
     else:
         print ex
         yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
@@ -235,7 +239,7 @@ def new(filename):
         
      
 # Итератор рассчета
-def calculation(exp, n = float('inf')):
+def calculate(exp, n = float('inf')):
     # проверка статуса модели 
     #примерная структура вычислителя:
 #1. загружаем файл структуры модели
@@ -279,11 +283,12 @@ def calculation(exp, n = float('inf')):
         #9. подсчет монтекарловских величин
             DM.CollapseData()  
             DM.PushData(exp)
-        except IndexError:
-            print "No more tasks, load interactive shell..."
-            print graph_help
-            interact(local=locals())
-        except:
-            print "somthing wrong."
+# временный запил, что бы посмотреть что случилось       
+       # except IndexError:
+       #     print "No more tasks, load interactive shell..."
+       #     print graph_help
+       #     interact(local=locals())
+       # except:
+       #     print "somthing wrong."
     #10. конец
     

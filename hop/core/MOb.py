@@ -8,7 +8,7 @@ MOb.py от Modell Objects
 
 """
 
-import numpy
+import numpy as np
 import random
 from types import CodeType
 
@@ -144,7 +144,7 @@ class cell(EventContainer):
         # определяем наименьшую
         # определяем соответствие событию
         # Ставим идентификатор события
-        self.ev = numpy.argmin(times)
+        self.ev = np.argmin(times)
         # записываем таймер, записываем время ЧЕРЕЗ КОТОРОЕ ПРОИЗОЙДЕТ СОБЫТИЕ
         self.Engine.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
         
@@ -203,6 +203,14 @@ class cell(EventContainer):
     
     def toMature(self, name):
         self.MCC[name].addCell()
+
+    def chCond(self, cond):
+        """
+        Простой вызов differentiation(cond)
+        Действие одинаковое, но по разному понимаемый смысл "состояния". Как состояние клетки или как степень дифференцировки
+        """
+        self.differentiation(cond)      
+        
     def test(self,s):
         print('get -- > '+s)
 #----------------------------------------------------------   

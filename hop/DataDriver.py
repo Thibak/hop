@@ -199,6 +199,7 @@ class XMLDriver():
             self.meta.set('modelFN', str(filename))
         else:
             print "No such file. Model not added"
+        self.save()
         
 # ------------функции работы парсера существующего файла  -------------------
     def open(self, filename):
