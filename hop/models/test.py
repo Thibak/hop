@@ -25,7 +25,9 @@ Created on Tue Aug 26 16:51:28 2014
 # e.addCondition(name, vec)
 # Ивенты выполняются внутри объекта Cell. Значит 
 
-e.addCondition('g1',[Event('np.random.weibull(1)','self.chCmprt("M")'), Event('np.random.weibull(1)','self.chCmprt("g0")')])
+#e.addCondition('g1',[Event('np.random.weibull(1)','self.chCmprt("M")'), Event('np.random.weibull(1)','self.chCmprt("g0")')])
+e.addCondition('g1',[Event('np.random.weibull(1)','self.division()')])
+
 e.addCondition('g0',[Event('np.random.weibull(1)','self.chCmprt("g1")')])
 e.addCondition('M',[Event('np.random.weibull(1)','self.chCmprt("g1")')])
 e.setDefCond('g1')
@@ -63,7 +65,7 @@ e.setDefCond('g1')
 
 # 2. стоп-машина StopEvent(Time). Без такого события расчет длится бесконечно. Если клетки не элиминируют естественно. Удобен простотой вызова
 # e.
-StopEvent(5)
+StopEvent(2)
 # Блочная часть модели:
 # На входе весь граф блоков принимает dt от событийного куска, и производит перерасчет содержимого по формулам внутреннего (internal) и внешнего (transition) перехода. Под внешним переходом подразумевается количество переходящих в to узел графа. Хорошо бы, что бы небыло висячих концов  
 # addCompartment(self, name, internal, transition, to):
