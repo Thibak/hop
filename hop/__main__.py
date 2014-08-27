@@ -4,10 +4,14 @@ Created on Tue Jul 29 15:27:42 2014
 
 @author: russinow
 """
+
+
 #import argparse
 from code import interact 
 import sys
-import hop
+sys.path.append('..')
+#import hop
+from __init__ import load, start
 print ("import")
 
 try:
@@ -32,8 +36,10 @@ except IndexError:
                 filename = yn
 
 #try:
-hop.load(filename)
+#hop.
+load(filename)
 #except:
 #    pass
-hop.start()
+#hop.
+start()
 

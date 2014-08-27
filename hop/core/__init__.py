@@ -25,6 +25,7 @@ from MOb import EventContainer
 from MOb import StopEvent
 # Главный объект
 
+
 class Engine:
     """
     
@@ -57,7 +58,7 @@ class Engine:
         self.TimeLine = []
     
         #Хитрый пустой слот, который мы запиливаем как заглушку тактовому сборщику данных.
-        self.taktalSlot = minimal_function.func_code
+        self.taktalSlot = compile('','<string>','exec')
         #compile('','<string>','exec')        
 
     def addCondition(self, name, vec):

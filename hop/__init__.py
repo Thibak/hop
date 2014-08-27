@@ -4,6 +4,7 @@
 """
 from core import Engine
 from core.MOb import StopEvent
+from core.AOb import Event
 from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
@@ -249,8 +250,8 @@ def calculate(exp, n = float('inf')):
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
     while n != 0:
-        n -= 1
-        try:
+            n -= 1
+       # try:
             exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
     #3. формируем монтекарловские переменные
             # МК переменные вытаскиваются из модели, это значит делаем это циклом
@@ -259,18 +260,18 @@ def calculate(exp, n = float('inf')):
             DM.LoadScripts(exp) # загружаем скрипты 
             e = Engine()
             # НЕ запускаем модель, а только загружаем, для опрпделения типов, можно сделать стоп с нулевым временем....
-            exec(model,locals())
+            exec(model,dict(globals(), **locals()))
             #e.start()
             
             # запускаем сортировщик
-            DM.AnalizeModel(e.DC.data.dict)
+            DM.AnalizeModel(e.DC.dict())
         #4. формируем монтекарловский цикл
                
             for MKiter in range(exp.iterations):
         #5. создаем ядро
                 e = Engine()
                 # запускаем модель
-                exec(model,locals())#<-- загружаем в локальный неймспейс
+                exec(model,dict(globals(), **locals()))#<-- загружаем в локальный неймспейс
                 
                 # ВАЖНО!! Догрузка итерируемых параметров, а на самом деле перегрузка.
                 e.const.__dict__.update(exp.loadConst())

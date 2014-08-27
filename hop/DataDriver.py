@@ -146,10 +146,11 @@ class XMLDriver():
     def addVScript(self, script):
         vscript = self.Factory.vscript(script)
         self.meta.append(vscript)
+        self.save()
     def addSScript(self, script):
         sscript = self.Factory.sscript(script)
         self.meta.append(sscript)
-        
+        self.save()
     def makeMatrix(self, Xvar, xstart, xstop, xstep, Yvar, ystart, ystop, ystep):
         # матрица. Может передавать не матрицы, а диапазоны и шаги?
         # что еще надо в матрице?
@@ -184,12 +185,12 @@ class XMLDriver():
         self.meta.set('status', 'task')
         self.save()
     def makeMTask(self, i, j, x, y):
-        mtask = self.Factory.mtask(i = str(i), j = str(j), x = str(x), y = str(y))
-        self.tasks.append(mtask)
+        task = self.Factory.task(i = str(i), j = str(j), x = str(x), y = str(y))
+        self.tasks.append(task)
         #При свертывании выполняем двойной цикл в котором забиваем item.i = i, item.j = j, item.x = x[i][j], item.y = y[i][j], где x и y -- имена итерируемых переменных
     def makeVTask(self,i,x):
-        vtask = self.Factory.vtask(i = str(i), x = str(x))
-        self.tasks.append(vtask)
+        task = self.Factory.task(i = str(i), x = str(x))
+        self.tasks.append(task)
     def setModel(self, filename):
         if '/' not in filename:
             filename = mod_path + filename
@@ -244,19 +245,19 @@ class XMLDriver():
         self.Task = Y()
 #        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
         #self.Task = {}
-        if self.tasks.attrib.get('TaskType') == 'M':
+        if self.meta.attrib.get('TaskType') == 'M':
             self.Task.TaskType = 'M'
             self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
             self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.j = int(self.CT.attrib.get('j'))
-            self.Task.x = int(self.CT.attrib.get('x'))
-            self.Task.y = int(self.CT.attrib.get('y'))
-        elif self.tasks.attrib.get('TaskType') == 'V':
+            self.Task.x = float(self.CT.attrib.get('x'))
+            self.Task.y = float(self.CT.attrib.get('y'))
+        elif self.meta.attrib.get('TaskType') == 'V':
             self.Task.TaskType = 'V'
             self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
             self.Task.i = int(self.CT.attrib.get('i'))
-            self.Task.x = int(self.CT.attrib.get('x'))
+            self.Task.x = float(self.CT.attrib.get('x'))
         else:
             raise Exception('ошибка в файле (нет типа задания)')
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
@@ -317,9 +318,9 @@ class XMLDriver():
     def status(self):
             return self.meta.attrib['status'] 
     def getVScript(self):
-        return self.meta.find('vscript').text
+        return str(self.meta.find('vscript').text)
     def getSScript(self):
-        return self.meta.find('sscript').text
+        return str(self.meta.find('sscript').text)
 # -------- функции работы графического обработчика -------
     def getZ(self, nameZ):
         pass
@@ -328,7 +329,7 @@ class XMLDriver():
         
 class DataMachine:
     def __init__(self):
-        self.names = X()
+        self.names = Y()
         self.erase()
         
     def erase(self): 
@@ -339,8 +340,8 @@ class DataMachine:
         
     # ------------ подготовка ------------
     def LoadScripts(self, XMLi):
-        self.vscr = compile(XMLi.getVScript,'<string>', 'exec')
-        self.sscr = compile(XMLi.getSScript,'<string>', 'exec')
+        self.vscr = compile(XMLi.getVScript(),'<string>', 'exec')
+        self.sscr = compile(XMLi.getSScript(),'<string>', 'exec')
         
     def AnalizeModel(self, dictn):
         for dataname in dictn:
