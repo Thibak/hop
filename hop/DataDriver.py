@@ -51,6 +51,8 @@ class Y(minimal_function):
     def __repr__(self):
         #return 'Y:%s'%self.__dict__
         return str(self.__dict__)
+    def __getattr__(self,attr):
+        return None
     def set(self,name, val):
         self.__dict__[name] = val
 
@@ -142,7 +144,7 @@ class XMLDriver():
             
     def setIter(self,iteration):
         self.meta.set('iteration', str(iteration))
-    
+        self.save()
     def addVScript(self, script):
         vscript = self.Factory.vscript(script)
         self.meta.append(vscript)
@@ -213,6 +215,7 @@ class XMLDriver():
         self.root = self.tree.getroot()
         self.tasks = self.root.find('.//tasks')
         self.meta = self.root.find('.//meta')
+        self.data = self.root.find('.//data')
         self.time = self.root.find('.//time')
         # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
@@ -298,7 +301,9 @@ class XMLDriver():
         else:
             print "ошибка записи данных, нет типа задачи, битый Task.TaskType. Результаты не записаны"
         self.data.append(DI)
-        self.CT.clear()
+        prnt = self.CT.getparent()
+        prnt.remove(self.CT)
+        #self.CT.clear()
         self.meta.set('status', 'progress')
         self.save()
         
@@ -345,9 +350,9 @@ class DataMachine:
         
     def AnalizeModel(self, dictn):
         for dataname in dictn:
-            if type(dictn(dataname)) == float:
+            if type(dictn.get(dataname)) == float:
                 self.names.float.append(dataname)
-            if type(dictn(dataname)) == list:
+            if type(dictn.get(dataname)) == list:
                 self.names.list.append(dataname)
 
         # подготавливаем слоты для данных      
@@ -369,7 +374,7 @@ class DataMachine:
         for mtrname in self.names.list:
             #<----------------------
             # непонятно почему я не присваиваю matrix ни куда..
-            matrix = self.val[mtrname]
+            matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
             data = Y()
             exec(self.vscr)
             self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
@@ -380,7 +385,7 @@ class DataMachine:
             vector = self.val[vecname]
             data = Y()
             exec(self.vscr)  
-            self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
+            self.data[vecname] = eval(str(data)) # что бы внутри хранились словари
             
     def PushData(self,XMLi):
         XMLi.writeData(str(self.data))
