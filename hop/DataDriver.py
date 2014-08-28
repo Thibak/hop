@@ -104,7 +104,7 @@ class XMLDriver():
             out += "\nЧто составляет "       
             out += self.rate() 
             out += "задач"
-        except:
+        except NameError:
             pass
         return out   
         
@@ -114,7 +114,7 @@ class XMLDriver():
             filename += '.xml'
         try: 
             self.open(filename)
-        except:
+        except IOError:
             self.filename = filename
             self.root = etree.XML('<root></root>')
             self.tree = etree.ElementTree(self.root)
