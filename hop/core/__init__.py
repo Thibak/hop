@@ -18,6 +18,8 @@ from MOb import MCC
 from AOb import EventServer
 from AOb import FeedBackSever, DataCollector
 from hop.DataDriver import Y, minimal_function
+from hop.usrexcept import setScript, UException1, UException2, UException3, UException4, UException5, UException6     
+
 
 #импорт для работы скрипта описания модели:
 from AOb import Event
@@ -108,12 +110,43 @@ class Engine:
             try:
                 dt = cell.go() # генератор события                
             except AttributeError:                 
-                break                
-            else:
-                self.TimeLine.append(dt)
-                #запускаем переббор всех интегральных компартментов
-                for cmprt in self.MCC:
-                    self.MCC[self.MCC[cmprt].to].add(self.MCC[cmprt].step(dt))
-                exec(self.taktalSlot)
+                break
+            #user exception block                
+            except UException1 as UE1:
+                try: 
+                    exec(UE1.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 1")
+            except UException2 as UE2:
+                try: 
+                    exec(UE2.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 2")
+            except UException3 as UE3:
+                try: 
+                    exec(UE3.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 3")
+            except UException4 as UE4:
+                try: 
+                    exec(UE4.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 4")
+            except UException5 as UE5:
+                try: 
+                    exec(UE5.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 5")
+            except UException6 as UE6:
+                try: 
+                    exec(UE6.script)
+                except AttributeError:
+                    raise AttributeError("set exception script 6")
+            # end
+            self.TimeLine.append(dt)
+            #запускаем переббор всех интегральных компартментов
+            for cmprt in self.MCC:
+                self.MCC[self.MCC[cmprt].to].add(self.MCC[cmprt].step(dt))
+            exec(self.taktalSlot)
         exec(self.DC.slot.final)
         #print "finale!"

@@ -16,7 +16,6 @@ class AbsractUException(Exception):
         return repr(self.value)
 
         
-        
 AUE = AbsractUException
 
 class UException1(AUE): pass
