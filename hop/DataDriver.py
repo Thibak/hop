@@ -221,13 +221,13 @@ class XMLDriver():
         # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
         # не самый лучший вариант, т.к. мы снова читаем хмль, Может быть стоит дважды прописать
         try: self.iterations = int(self.meta.attrib['iteration'])
-        except: print('failed to load number of iterations')
+        except KeyError: print('failed to load number of iterations')
         try: self.modelFN    = self.meta.attrib['modelFN']
-        except: print('failed to load name of file of model')
+        except KeyError: print('failed to load name of file of model')
         try: self.type = self.meta.attrib['TaskType']
-        except: print('failed to load type of task')
+        except KeyError: print('failed to load type of task')
         try: self.stataus = self.meta.attrib['status']
-        except: print('failed to load status')
+        except KeyError: print('failed to load status')
         #
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
@@ -244,6 +244,7 @@ class XMLDriver():
         self.CT = self.root.find('.//task')
         if type(self.CT) == type(None):
             self.meta.set('status', 'complete')
+            self.save()
             raise IndexError # попробовать выработку специфического ексепшена.
         self.Task = Y()
 #        <--------------- переделать таск в Y, тогда присвоение идет через гетатр

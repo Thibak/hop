@@ -250,8 +250,8 @@ def calculate(exp, n = float('inf')):
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
     while n != 0:
-            n -= 1
-       # try:
+        n -= 1
+        try:
             exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
     #3. формируем монтекарловские переменные
             # МК переменные вытаскиваются из модели, это значит делаем это циклом
@@ -285,11 +285,11 @@ def calculate(exp, n = float('inf')):
             DM.CollapseData()  
             DM.PushData(exp)
 # временный запил, что бы посмотреть что случилось       
-       # except IndexError:
-       #     print "No more tasks, load interactive shell..."
-       #     print graph_help
-       #     interact(local=locals())
-       # except:
-       #     print "somthing wrong."
+        except IndexError:
+            print "No more tasks, load interactive shell..."
+            print graph_help
+            interact(local=locals())
+        #except:
+        #    print "somthing wrong."
     #10. конец
     
