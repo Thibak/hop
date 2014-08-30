@@ -77,10 +77,10 @@ class XMLDriver():
         else:
             self.open(filename)
     def __repr__(self):
-        out = 'Эксперимент:'
+        out = 'Experiment:'
         # проверка открыт ли файл
         # проверка подгрузки параметров
-        out += '\nИмя файла: '
+        out += '\nFile Name: '
         try: 
             out += self.filename
         except AttributeError:
@@ -149,18 +149,22 @@ class XMLDriver():
     def addScriptFile(self, filename):
         if '/' not in filename:
             filename = scr_path + filename
-        if filename[-3:] != '.xml':
-            filename += '.xml'
+        if filename[-2:] != '.py':
+            filename += '.py'
+        #print filename
         if exists(filename):
             self.meta.set('ScriptFileName', filename)
+            self.save()
     def loadScript(self):
         exec(compile( open(self.meta.attrib['ScriptFileName']).read(), self.meta.attrib['ScriptFileName'], 'exec') )
     def addVScript(self, script):
         vscript = self.Factory.vscript(script)
+        self.meta.remove(self.meta.find('.//vscript'))
         self.meta.append(vscript)
         self.save()
     def addSScript(self, script):
-        sscript = self.Factory.sscript(script)
+        sscript = self.Factory.sscript(script)        
+        self.meta.remove(self.meta.find('.//sscript'))
         self.meta.append(sscript)
         self.save()
     def makeMatrix(self, Xvar, xstart, xstop, xstep, Yvar, ystart, ystop, ystep):
@@ -387,7 +391,7 @@ class DataMachine:
             # непонятно почему я не присваиваю matrix ни куда..
             matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
             data = Y()
-            exec(self.mscr)
+            exec(self.vscr)
             self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
             # страшно корявая реализация, но пусть будет 
             #  проблема в том, что внутри мы храни
@@ -395,7 +399,7 @@ class DataMachine:
         for vecname in self.names.float:
             vector = self.val[vecname]
             data = Y()
-            exec(self.vscr)  
+            exec(self.sscr)  
             self.data[vecname] = eval(str(data)) # что бы внутри хранились словари
             
     def PushData(self,XMLi):
