@@ -392,7 +392,7 @@ class DataMachine:
             matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
             data = Y()
             exec(self.vscr)
-            self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
+            self.data[mtrname] =  str(data) #eval() # что бы внутри хранились словари
             # страшно корявая реализация, но пусть будет 
             #  проблема в том, что внутри мы храни
             
@@ -400,7 +400,7 @@ class DataMachine:
             vector = self.val[vecname]
             data = Y()
             exec(self.sscr)  
-            self.data[vecname] = eval(str(data)) # что бы внутри хранились словари
+            self.data[vecname] = str(data) # eval() # что бы внутри хранились словари
             
     def PushData(self,XMLi):
         XMLi.writeData(str(self.data))
