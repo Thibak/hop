@@ -39,6 +39,7 @@ import numpy as np
 
 #from hop import mod_path
 mod_path = 'hop/models/'
+scr_path = 'hop/mkscr/'
 
 class minimal_function(object): pass
 
@@ -145,6 +146,15 @@ class XMLDriver():
     def setIter(self,iteration):
         self.meta.set('iteration', str(iteration))
         self.save()
+    def addScriptFile(self, filename):
+        if '/' not in filename:
+            filename = scr_path + filename
+        if filename[-3:] != '.xml':
+            filename += '.xml'
+        if exists(filename):
+            self.meta.set('ScriptFileName', filename)
+    def loadScript(self):
+        exec(compile( open(self.meta.attrib['ScriptFileName']).read(), self.meta.attrib['ScriptFileName'], 'exec') )
     def addVScript(self, script):
         vscript = self.Factory.vscript(script)
         self.meta.append(vscript)
@@ -377,7 +387,7 @@ class DataMachine:
             # непонятно почему я не присваиваю matrix ни куда..
             matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
             data = Y()
-            exec(self.vscr)
+            exec(self.mscr)
             self.data[mtrname] = eval(str(data)) # что бы внутри хранились словари
             # страшно корявая реализация, но пусть будет 
             #  проблема в том, что внутри мы храни
