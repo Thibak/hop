@@ -162,6 +162,8 @@ Eval vs exec
     Скрипты апендятся, что не есть хорошо, т.к. не нулевая вероятность иметь несколько. Посмотреть как апдейтить/создавать а не апендить хемеель
     сепарированая система описания скриптов обработки монтекарло
 
+    
+
 Далее:    
    
     Локализация
@@ -178,6 +180,59 @@ Eval vs exec
     производительность и примерное время рассчета. Крайне полезная фича была бы.
     оптимизировать работу сервера обратных событий. Пока переключаются только словари, но нет возможности переключать отдельные переменные.
 
+--------------------------------
+Локализация:
+No file with such name
+Would you like to create a file with this name?
+Calculation complete. Would you like to load interactive shell?
+Something's wrong. Shutting down.
+Calculation complete at " + str(ex.progress()) + "%, would you like to continue calculation,\n(y/n/number of iterations):
+the number of operations cannot be less than zero
+It's just a dummy. Would you like to make a task?
+Task file, would you like to start calculation?
+Something is wrong. Try another file or correct this one by hand\n
+Correct by hand/check/exit
+No more tasks, load interactive shell...
+_____% of calculation complete
+Which makes up _____takes
+File with such name alrady exists. File is open for reading.
+Task already given
+No such file. Model not added
+failed to load number of iterations
+Mistake in file (type of task not specified)
+Calculations started, you cannot delete the task you've started
+Data recording mistake, no task type, broken task. TaskType. Results not recorded
+Monte Carlo model script has been added
+
+
+
+"""
+To create a new task set the following parameters:
+Use ex as a prefix.
+- setModel(name):
+sets the name of the model - the name of file .py with model structure description. Whether the name of the file has .py extension or not, the program automatically makes the name complete. In case the path to the file is not specified directly and only name is given, the program carries out the search in the inner directory ./models; in case there is no such file, the user is advised to create an absolute path to the file or create a file with such name in the inner directory. Many programs of the experiment may refer to one model. Calculations do not alter the program of the experiment. 
+- makeMatrix(Xvar, XX, Yvar, YY): creates cartesian product of parameters Xvar*Yvar on vectors XX, YY. Vectors are created by the following procedure
+np.arange(start, stop, step)
+- makeVec(Xvar, XX): creates a vector on variable Xvar, from vector XX,
+XX is set by procedure np.arange(start, stop, step)
+A task cannot contain more than one matrix or vector. An attempt to create a new one is blocked. 
+- delTask(): However, before the start of calculation, the task can be deleted and a new one created (with the task type changed and parameters iterated)
+"""
+The following fuctions are avilable for graphic works:
+Use ex as a prefix
+
+-
+-
+-
+
+"""
+(""" Wecome to HOP. 
+To download the experiment file enter its name (with full name if...) 
+to download interactive shell enter 'I'
+to exit enter 'X'""")
+
+'The dictionary of event server allows real numbers or line scripts'
+setDefCond: Such condition does not exist
 --------------------------------
 
 Монтекарловская обработка теперь загружается из файла. Не самое лучшее решение, но перепиливать всю систему не стоит.
