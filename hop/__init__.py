@@ -9,7 +9,7 @@ from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
 from sys import exit, stdout
-
+import datetime
  
 
 # Создаем болванку для общедоступности
@@ -237,19 +237,30 @@ def new(filename):
     ex = XMLDriver()
     ex.new(filename)
     print new_task_help
-        
+
+
+
+
+
+
+     
      
 # Итератор рассчета
 def calculate(exp, n = float('inf')):
     # проверка статуса модели 
     #примерная структура вычислителя:
 #1. загружаем файл структуры модели
-    # а вернее компилируем, т.к. в течении запуска надо каждый раз обновлять его 
+    # а вернее компилируем, т.к. в течении запуска надо каждый раз обновлять его
+    print('Loading model...')
     model = compile(open(exp.modelFN).read(),exp.modelFN,'exec') 
     exp.loadScript()
     #ВНИМАНИЕ!! После компиляции содержимое файла уже не модифицируется, т.ч. надо это учесть при итерировании
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
+    st = datetime.datetime.now()
+    print('Start at '+ str(st))
+    tottime = (st-st).total_seconds()
+    taskdone = 0
     while n != 0:
         n -= 1
         try:
@@ -270,7 +281,7 @@ def calculate(exp, n = float('inf')):
         #4. формируем монтекарловский цикл
                
             for MKiter in range(exp.iterations):
-                stdout.write("\r" + 'calculating iteration ' + str(MKiter) + ' out of ' + str(exp.iterations))
+                stdout.write("\r" + 'calculating iteration ' + str(MKiter+1) + ' out of ' + str(exp.iterations))
         #5. создаем ядро
                 e = Engine()
                 # запускаем модель
@@ -284,7 +295,14 @@ def calculate(exp, n = float('inf')):
         #8. останов расчета по критерию (какому? Допилить в ядре. Прописывается в модели, кстати)
                 #сбор данных
                 DM.addData(e.DC)
+            et = datetime.datetime.now()
+            deltatime = (et-st).total_seconds()
+            tottime += deltatime
+            taskdone += 1
+            ovtime = tottime/taskdone
+            stdout.write("\r" + 'Coplete. \nIt took ' + str(deltatime) + ' sec.\n')
         #9. подсчет монтекарловских величин
+            print ('expected time of complition \n' + str(datetime.datetime.now() + datetime.timedelta(seconds = ovtime*(n+1))))
             DM.CollapseData()  
             DM.PushData(exp)
 # временный запил, что бы посмотреть что случилось       
@@ -292,6 +310,8 @@ def calculate(exp, n = float('inf')):
             print "No more tasks, load interactive shell..."
             print graph_help
             interact(local=locals())
+        
+    print ('\nCalculation complit at \n'+ str(datetime.datetime.now()) + '\nTotal time '+ str(tottime) + ' sec.' )
         #except:
         #    print "somthing wrong."
     #10. конец
