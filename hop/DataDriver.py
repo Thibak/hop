@@ -328,12 +328,12 @@ class XMLDriver():
         """
         Возвращает процент выполненной работы
         """
-        if self.meta.attrib['status'] == 'Null' or 'task':
+        if self.meta.attrib['status'] in 'Nulltask':
             return 0
         elif self.meta.attrib['status'] == 'complete':
             return 100
         elif self.meta.attrib['status'] == 'progress':
-            return len(self.tasks.findall('.//'))/(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))*100
+            return float(len(self.data.findall('.//')))/(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))*100
         else: raise Exception('No status')
         
         
