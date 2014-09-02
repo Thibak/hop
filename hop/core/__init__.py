@@ -9,7 +9,7 @@ Created on Tue Jul 29 15:29:06 2014
 
 
 """
-
+import datetime
 
 from MOb import EventContainer
 from MOb import cell
@@ -47,6 +47,7 @@ class Engine:
         self.ES = EventServer()
         self.FB = FeedBackSever()
         self.DC = DataCollector()
+        self.DC.addDataPoint('calctime', 's'),
         #self.FB.Engine = self
         #Закладываем ссылку на сервер событий с целью прямой закладки
         #self.cell.ES = self.ES  
@@ -99,6 +100,7 @@ class Engine:
         """
         # создаем первую клетку, ставим состояние по умолчанию
         # как ни странно, ни чему не надо ее присваивать, Т.к. клетка делает все сама.
+        st = datetime.datetime.now()
         self.cell() 
               
         #Запускаем итератор времени.
@@ -147,6 +149,8 @@ class Engine:
             #запускаем переббор всех интегральных компартментов
             for cmprt in self.MCC:
                 self.MCC[self.MCC[cmprt].to].add(self.MCC[cmprt].step(dt))
-            exec(self.taktalSlot)
+            exec(self.taktalSlot)       
         exec(self.DC.slot.final)
+        et = datetime.datetime.now()
+        self.DC.data.calctime = (et-st).total_seconds() 
         #print "finale!"

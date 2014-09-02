@@ -300,9 +300,9 @@ def calculate(exp, n = float('inf')):
             tottime += deltatime
             taskdone += 1
             ovtime = tottime/taskdone
-            stdout.write("\r" + 'Coplete. \nIt took ' + str(deltatime) + ' sec.\n')
+            stdout.write("\r" + 'Coplete.                              \nIt took ' + str(deltatime) + ' sec.\n')
         #9. подсчет монтекарловских величин
-            print ('expected time of complition \n' + str(datetime.datetime.now() + datetime.timedelta(seconds = ovtime*(n+1))))
+            print ('expected time of complition: ' + str(datetime.datetime.now() + datetime.timedelta(seconds = ovtime*(n+1))))
             DM.CollapseData()  
             DM.PushData(exp)
 # временный запил, что бы посмотреть что случилось       
@@ -311,7 +311,7 @@ def calculate(exp, n = float('inf')):
             print graph_help
             interact(local=locals())
         
-    print ('\nCalculation complit at \n'+ str(datetime.datetime.now()) + '\nTotal time '+ str(tottime) + ' sec.' )
+    print ('\nCalculation complit at:      '+ str(datetime.datetime.now()) + '\nTotal time '+ str(tottime) + ' sec.' )
         #except:
         #    print "somthing wrong."
     #10. конец

@@ -35,8 +35,8 @@ data.median = _median
 """
 sscript =\
 """
+data.source = vector
 #data.source = vector
-data.len = len(vector)
 """
 self.addVScript(vscript)
 self.addSScript(sscript)
