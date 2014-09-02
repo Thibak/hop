@@ -20,8 +20,33 @@ mod_path = 'hop/models/'
 #--------------------------------------
 # хелпы:
 # два штуки: графика, новый файл
-
 new_task_help =\
+"""
+To create a new task set the following parameters:
+Use ex as a prefix.
+- setModel(name):
+sets the name of the model - the name of file .py with model structure description. Whether the name of the file has .py extension or not, the program automatically makes the name complete. In case the path to the file is not specified directly and only name is given, the program carries out the search in the inner directory ./models; in case there is no such file, the user is advised to create an absolute path to the file or create a file with such name in the inner directory. Many programs of the experiment may refer to one model. Calculations do not alter the program of the experiment. 
+- makeMatrix(Xvar, XX, Yvar, YY): creates cartesian product of parameters Xvar*Yvar on vectors XX, YY. Vectors are created by the following procedure
+np.arange(start, stop, step)
+- makeVec(Xvar, XX): creates a vector on variable Xvar, from vector XX,
+XX is set by procedure np.arange(start, stop, step)
+A task cannot contain more than one matrix or vector. An attempt to create a new one is blocked. 
+- delTask(): However, before the start of calculation, the task can be deleted and a new one created (with the task type changed and parameters iterated)
+"""
+graph_help =\
+"""
+The following fuctions are avilable for graphic works:
+Use ex as a prefix
+
+-
+-
+-
+
+"""
+
+
+
+new_task_help_ru =\
 """
 Для создания нового задания задайте следующие параметры:
 Как префикс используйте ex.
@@ -34,7 +59,7 @@ new_task_help =\
 - delTask(): Однако до начала расчета задание может быть удалено и создано новое (с заменой типа задачи и итерируемых параметров) 
 """
 
-graph_help =\
+graph_help_ru =\
 """
 Для работы с графикой доступны следующие функции:
 Как префикс используйте ex.
@@ -128,12 +153,12 @@ def load(filename):
     try:
         ex = XMLDriver(filename)
     except IOError:
-        print('No such file\n')
-        yn = raw_input("Would you like? \n(y/n):")
+        print('No file with such name\n')
+        yn = raw_input("Would you like to create a file with this name? \n(y/n):")
         if   yn in 'yYуУyesдД':
             new(filename)
         else:
-            print('closing. Dos!')
+            print('Shutting down.')
             exit()
 
 
@@ -151,17 +176,17 @@ def start():
         """)
     elif ex.status() == 'complete':
         print ex
-        yn = raw_input("Расчет завершен. Прейти в интерактивный режим для построения графики?\n(y/n):")
+        yn = raw_input("Calculation complete. Would you like to load interactive shell?\n(y/n):")
         if   yn in 'yYуУyesдД':
             print graph_help
             interact(local=locals()) # перейти в интерактивный режим, вывести хелп по графике
         elif yn in 'nNNoxXexitquitqQ':
             return
         else:
-            print('Что-то не то. Закрываюсь.')
+            print("Something's wrong. Shutting down.")
     elif ex.status() == 'progress':
         print ex        
-        yn = raw_input("Расчет завершен на " + str(ex.progress()) + "%, продолжить расчет?\n(y/n/число прогонов):")
+        yn = raw_input("Calculation complete at " + str(ex.progress()) + "%, would you like to continue calculation?\n(y/n/number of iterations):")
         # селектор
         if   yn in 'yYуУyesдД':
             calculate(ex)# начать выполнение
@@ -173,16 +198,16 @@ def start():
                 if n<0:
                     raise SyntaxWarning
             except SyntaxWarning:
-                print ('количество операций не может быть меньше нуля')
+                print ('the number of operations cannot be less than zero')
                 #break
             except ValueError:
-               print('Что-то не то. Закрываюсь.') 
+               print("Something's wrong. Shutting down.") 
             else:
                 calculate(ex,n)# начать выполнение
             
     elif ex.status() == 'Null':
         print ex
-        yn = raw_input("It's just a dummy. Would you like to make task?\n(y/n):")
+        yn = raw_input("It's just a dummy. Would you like to make a task?\n(y/n):")
         # селектор
         if   yn in 'yYуУyesдД':
             print new_task_help 
@@ -191,12 +216,12 @@ def start():
         elif yn in 'nNNoxXexitquitqQ':
             return
         else:
-            print('Что-то не то. Закрываюсь.')
+            print("Something's wrong. Shutting down.") 
                 
 
     elif ex.status() == 'task':
         print ex
-        yn = raw_input("Task. Start?\n(y/n/number of iteration/e):")
+        yn = raw_input("Task file, would you like to start calculation?\n(y/n/number of iteration/e):")
         # селектор
         if yn in 'eEЕеedit':
             print new_task_help 
@@ -211,16 +236,16 @@ def start():
                 if n<0:
                     raise SyntaxWarning
             except SyntaxWarning:
-                print ('количество операций не может быть меньше нуля')
+                print ('the number of operations cannot be less than zero')
                 #break
             except ValueError:
-                print('Что-то не то. Закрываюсь.') 
+                print("Something's wrong. Shutting down.")  
                 #break
             else:
                 calculate(ex,n)# начать выполнение
     else:
         print ex
-        yn = raw_input('Что-то не то... Попробуйте другой файл, или поправьте этот вручную\n Поправить вручную/посмотреть/выйти: (e/c/x)')
+        yn = raw_input('Something is wrong. Try another file or correct this one by hand\n edit/check/exit: (e/c/x)')
         if   yn in 'eEЕеedit':
             call("notepad "+ str(ex.filename))
         elif yn in 'cсCСcheck':
@@ -228,7 +253,7 @@ def start():
         elif yn in 'nNNoxXxitquitqQ':
             return
         else:
-            print('Что-то опять не то. Закрываюсь.')
+            print("Something's wrong. Shutting down.") 
 
 def new(filename):
     global ex
@@ -300,7 +325,7 @@ def calculate(exp, n = float('inf')):
             tottime += deltatime
             taskdone += 1
             ovtime = tottime/taskdone
-            stdout.write("\r" + 'Coplete.                              \nIt took ' + str(deltatime) + ' sec.\n')
+            stdout.write("\r" + 'Complete.                              \nIt took ' + str(deltatime) + ' sec.\n')
         #9. подсчет монтекарловских величин
             print ('expected time of complition: ' + str(datetime.datetime.now() + datetime.timedelta(seconds = ovtime*(n+1))))
             DM.CollapseData()  

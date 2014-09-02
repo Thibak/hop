@@ -95,16 +95,16 @@ class XMLDriver():
             out += self.meta.attrib['status']
         except AttributeError:
             pass          
-        out += "\nРасчет завершен на "       
+        out += "\n "       
         try: 
             out += str(self.progress())
-            out += '%'
+            out += '% of calculation complete'
         except AttributeError:
-            out += '0%'  
+            out += '0% of calculation complete'  
         try:
-            out += "\nЧто составляет "       
+            out += "\nWhich makes up "       
             out += self.rate() 
-            out += "задач"
+            out += " takes"
         except NameError:
             pass
         return out   
@@ -155,6 +155,7 @@ class XMLDriver():
         if exists(filename):
             self.meta.set('ScriptFileName', filename)
             self.save()
+            print ('Monte-Carlo model script has been added')
     def loadScript(self):
         exec(compile( open(self.meta.attrib['ScriptFileName']).read(), self.meta.attrib['ScriptFileName'], 'exec') )
     def addVScript(self, script):
@@ -277,7 +278,7 @@ class XMLDriver():
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.x = float(self.CT.attrib.get('x'))
         else:
-            raise Exception('ошибка в файле (нет типа задания)')
+            raise Exception('Mistake in file (type of task not specified)')
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
         # хотя можно словарь сделать, как элементарный контейнер
         #делаем подгрузку через try. Через сортировку того, что может
@@ -291,14 +292,15 @@ class XMLDriver():
         const_dict[self.Task.Xvar] = self.Task.x
         const_dict[self.Task.Yvar] = self.Task.y
         return const_dict 
+        
     def delTask(self):
         if self.meta.attrib['status'] != 'Null':
-            print('задача не задана')
+            print('No task')
         elif self.meta.attrib['status'] == 'task':
             self.tasks.clear()
             self.meta.set('status', 'Null')
         else:
-            print ('Расчет начат, нельзя удалить начатую задачу')
+            print ("Calculations started, you cannot delete the task you've started")
         #raise Exception('Task already given')
         
     def writeData(self, data):
@@ -314,7 +316,7 @@ class XMLDriver():
         elif self.Task.TaskType == 'V':
             DI = self.Factory.item(str(data), i = str(self.Task.i), x = str(self.Task.x))
         else:
-            print "ошибка записи данных, нет типа задачи, битый Task.TaskType. Результаты не записаны"
+            print "Data recording mistake, no task type, broken task.TaskType. Results not recorded"
         self.data.append(DI)
         prnt = self.CT.getparent()
         prnt.remove(self.CT)
@@ -333,6 +335,8 @@ class XMLDriver():
         elif self.meta.attrib['status'] == 'progress':
             return len(self.tasks.findall('.//'))/(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))*100
         else: raise Exception('No status')
+        
+        
     def rate(self):
         return str(len(self.tasks.findall('.//'))) + ' from ' + str(len(self.tasks.findall('.//'))+len(self.data.findall('.//')))
     def status(self):
