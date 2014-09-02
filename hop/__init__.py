@@ -8,7 +8,7 @@ from core.AOb import Event
 from DataDriver import XMLDriver, DataMachine
 from subprocess import call
 from code import interact 
-from sys import exit
+from sys import exit, stdout
 
  
 
@@ -253,6 +253,7 @@ def calculate(exp, n = float('inf')):
     while n != 0:
         n -= 1
         try:
+            print('\ncalculating: ' + str(n+1) + ' task left')
             exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
     #3. формируем монтекарловские переменные
             # МК переменные вытаскиваются из модели, это значит делаем это циклом
@@ -269,6 +270,7 @@ def calculate(exp, n = float('inf')):
         #4. формируем монтекарловский цикл
                
             for MKiter in range(exp.iterations):
+                stdout.write("\r" + 'calculating iteration ' + str(MKiter) + ' out of ' + str(exp.iterations))
         #5. создаем ядро
                 e = Engine()
                 # запускаем модель
