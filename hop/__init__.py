@@ -279,6 +279,7 @@ def calculate(exp, n = float('inf')):
     print('Loading model...')
     model = compile(open(exp.modelFN).read(),exp.modelFN,'exec') 
     exp.loadScript()
+    if n > exp.remain: n = exp.remain
     #ВНИМАНИЕ!! После компиляции содержимое файла уже не модифицируется, т.ч. надо это учесть при итерировании
 #2. загружаем параметры модели (таск) ПЕРВЫЙ ЦИКЛ 
     # т.е. загружаем его как текущуий таск для данного эксперимента
@@ -289,8 +290,10 @@ def calculate(exp, n = float('inf')):
     while n != 0:
         n -= 1
         try:
+            st = datetime.datetime.now()
             print('\ncalculating: ' + str(n+1) + ' task left')
-            exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do.
+            exp.LoadTask() # <--- НЕ ЗАБЫТЬ, что тут надо делать трай, т.к. обработка идет до эксепшена, вырабатываемого этой функцией. Т.е. while True, do. 
+            # в итоге до этого недоходит, но оставим на всякий случай.
     #3. формируем монтекарловские переменные
             # МК переменные вытаскиваются из модели, это значит делаем это циклом
             # нулевой цикл, для определения имен переменных в ДатаКоллекторе
@@ -337,6 +340,12 @@ def calculate(exp, n = float('inf')):
             interact(local=locals())
         
     print ('\nCalculation complit at:      '+ str(datetime.datetime.now()) + '\nTotal time '+ str(tottime) + ' sec.' )
+    try:
+        exp.LoadTask() # пытаемся подгрузить последнюю задачу, если расчет закончен (нет тасков), то автоматически помечается как законченый файл данных, если нет, то ни чего не меняет.
+    except IndexError:
+        print "No more tasks, load interactive shell..."
+        print graph_help
+        interact(local=locals())
         #except:
         #    print "somthing wrong."
     #10. конец

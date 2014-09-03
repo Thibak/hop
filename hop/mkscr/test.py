@@ -36,7 +36,7 @@ data.median = _median
 sscript =\
 """
 data.source = vector
-#data.source = vector
+data.mean = np.mean(vector)
 """
 self.addVScript(vscript)
 self.addSScript(sscript)

@@ -34,6 +34,7 @@ from lxml import etree #<-- вспомогательная функция для
 from datetime import datetime
 from os.path import exists
 import numpy as np
+import matplotlib.pyplot as plt
 
 #import os
 
@@ -243,6 +244,20 @@ class XMLDriver():
         except KeyError: print('failed to load type of task')
         try: self.stataus = self.meta.attrib['status']
         except KeyError: print('failed to load status')
+        try:
+            if self.meta.attrib.get('TaskType') == 'M':
+                self.TaskType = 'M'
+                self.Xvar = str(self.root.find('.//x').attrib.get('name'))
+                self.Yvar = str(self.root.find('.//y').attrib.get('name'))           
+            elif self.meta.attrib.get('TaskType') == 'V':
+                self.TaskType = 'V'
+                self.Xvar = str(self.root.find('.//x').attrib.get('name')) 
+                self.Yvar = None
+            else:
+                raise Exception('Mistake in file (type of task not specified)')
+        except KeyError: print('failed to load task type')
+        try: self.remain = len(self.root.findall('.//task'))
+        except TypeError:  self.remain = 0
         #
 # -------- функции работы обработчика -----------
     def LoadTask(self): #<-- фактически оболочка над итератором
@@ -264,21 +279,38 @@ class XMLDriver():
         self.Task = Y()
 #        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
         #self.Task = {}
-        if self.meta.attrib.get('TaskType') == 'M':
-            self.Task.TaskType = 'M'
-            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
-            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
+        #закомментирую, т.к. пробуем немного подругому:
+#        if self.meta.attrib.get('TaskType') == 'M':
+#            self.Task.TaskType = 'M'
+#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
+#            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
+#            self.Task.i = int(self.CT.attrib.get('i'))
+#            self.Task.j = int(self.CT.attrib.get('j'))
+#            self.Task.x = float(self.CT.attrib.get('x'))
+#            self.Task.y = float(self.CT.attrib.get('y'))
+#        elif self.meta.attrib.get('TaskType') == 'V':
+#            self.Task.TaskType = 'V'
+#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
+#            self.Task.i = int(self.CT.attrib.get('i'))
+#            self.Task.x = float(self.CT.attrib.get('x'))
+#        else:
+#            raise Exception('Mistake in file (type of task not specified)')
+        if self.TaskType == 'M':
+#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
+#            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.j = int(self.CT.attrib.get('j'))
             self.Task.x = float(self.CT.attrib.get('x'))
             self.Task.y = float(self.CT.attrib.get('y'))
-        elif self.meta.attrib.get('TaskType') == 'V':
-            self.Task.TaskType = 'V'
-            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
+        elif self.TaskType == 'V':
+#            self.Task.TaskType = 'V'
+#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.x = float(self.CT.attrib.get('x'))
         else:
-            raise Exception('Mistake in file (type of task not specified)')
+            raise Exception('Mistake in file (type of task not specified)')        
+        
+        
         # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
         # хотя можно словарь сделать, как элементарный контейнер
         #делаем подгрузку через try. Через сортировку того, что может
@@ -289,8 +321,8 @@ class XMLDriver():
         Возвращает dict, которым делаем апдейт словаря констант
         """
         const_dict = {}
-        const_dict[self.Task.Xvar] = self.Task.x
-        const_dict[self.Task.Yvar] = self.Task.y
+        const_dict[self.Xvar] = self.Task.x
+        const_dict[self.Yvar] = self.Task.y
         return const_dict 
         
     def delTask(self):
@@ -300,7 +332,7 @@ class XMLDriver():
             self.tasks.clear()
             self.meta.set('status', 'Null')
         else:
-            print ("Calculations started, you cannot delete the task you've started")
+            print ("Calculations started (or complit), you cannot delete the task you've started")
         #raise Exception('Task already given')
         
     def writeData(self, data):
@@ -311,12 +343,12 @@ class XMLDriver():
         3. определитель типа 
         """
         #<----------------- тут доделать записываемые параметры. и и жи достаются неправильно и надо еще что-то записывать. А если не матрица!?
-        if self.Task.TaskType == 'M':
+        if self.TaskType == 'M':
             DI = self.Factory.item(str(data), i = str(self.Task.i), j = str(self.Task.j), x = str(self.Task.x), y = str(self.Task.y))
-        elif self.Task.TaskType == 'V':
+        elif self.TaskType == 'V':
             DI = self.Factory.item(str(data), i = str(self.Task.i), x = str(self.Task.x))
         else:
-            print "Data recording mistake, no task type, broken task.TaskType. Results not recorded"
+            raise Exception ("Data recording mistake, no task type, broken TaskType. Results not recorded")
         self.data.append(DI)
         prnt = self.CT.getparent()
         prnt.remove(self.CT)
@@ -345,11 +377,38 @@ class XMLDriver():
         return str(self.meta.find('vscript').text)
     def getSScript(self):
         return str(self.meta.find('sscript').text)
+        
 # -------- функции работы графического обработчика -------
-    def getZ(self, nameZ):
+# Графический обработчик должен эмулировать все  функции, а на самом деле всего несколько для работы с матплотлибом. Мне надо делать 3-х мерные графики 
+# кроме того, надо уметь формировать CSV по заданным параметрам
+
+# интерфейсные (внутренние) функции
+    def plot(self, name, aprType = 'mean'):
+        """
+        Функция должна возвращать матрицу Z в стиле матплотлиба
+        """
+        if self.TaskType == 'V':
+            alldata = self.root.findall('.//item')
+            X = [None]*len(alldata)
+            Z = [None]*len(alldata)
+            for item in alldata:
+                X[int(item.attrib['i'])] = item.attrib['x'] # ставим полученное значнеие на нужное место
+                data = eval(item.text)
+                Z[int(item.attrib['i'])] = data[name][aprType]
+            plt.plot(X,Z)
+            plt.xlabel(self.Xvar)
+            plt.ylabel(name)
+            plt.show()
+        elif self.meta.attrib.get('TaskType') == 'M':
+            pass
+        else:
+            raise Exception('Mistake in file (type of task not specified)')        
         pass
         # возвращает матрицу, которая формируется из прочесываемых итемов. 
         # проверка на законченность вычислений
+        
+        
+        
         
 class DataMachine:
     def __init__(self):
@@ -394,17 +453,19 @@ class DataMachine:
             #<----------------------
             # непонятно почему я не присваиваю matrix ни куда..
             matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
+            #print (mtrname + ' matr')
             data = Y()
             exec(self.vscr)
-            self.data[mtrname] =  str(data) #eval() # что бы внутри хранились словари
+            self.data[mtrname] =  eval(str(data)) #eval() # что бы внутри хранились словари
             # страшно корявая реализация, но пусть будет 
             #  проблема в том, что внутри мы храни
             
         for vecname in self.names.float:
             vector = self.val[vecname]
+            #print (vecname + ' vect')
             data = Y()
             exec(self.sscr)  
-            self.data[vecname] = str(data) # eval() # что бы внутри хранились словари
+            self.data[vecname] = eval(str(data)) # eval() # что бы внутри хранились словари
             
     def PushData(self,XMLi):
         XMLi.writeData(str(self.data))
