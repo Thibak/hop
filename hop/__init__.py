@@ -179,7 +179,8 @@ def start():
         yn = raw_input("Calculation complete. Would you like to load interactive shell?\n(y/n):")
         if   yn in 'yYуУyesдД':
             print graph_help
-            interact(local=locals()) # перейти в интерактивный режим, вывести хелп по графике
+            interact(local=dict(globals(), **locals()))
+            #interact(local=locals()) # перейти в интерактивный режим, вывести хелп по графике
         elif yn in 'nNNoxXexitquitqQ':
             return
         else:

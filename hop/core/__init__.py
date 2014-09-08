@@ -111,7 +111,8 @@ class Engine:
             #хитрость в том, что когда заканчивается очередь, возвращается None, который не имеет атрибута .go, при попытки его запроса генерируется ошибка AttributeError
             try:
                 dt = cell.go() # генератор события                
-            except AttributeError:                 
+            except AttributeError:     
+                self.TimeLine.append(self.ES.deltaT)
                 break
             #user exception block                
             except UException1 as UE1:

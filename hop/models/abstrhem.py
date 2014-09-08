@@ -3,6 +3,9 @@
 Created on Tue Aug 26 16:51:28 2014
 
 @author: user
+
+Попробуем описать простой эритропоез
+
 """
 
 #########################################################
@@ -25,10 +28,18 @@ Created on Tue Aug 26 16:51:28 2014
 # e.addCondition(name, vec)
 # Ивенты выполняются внутри объекта Cell. Значит 
 
-e.addCondition('g1',[Event('np.random.weibull(1)','self.chCond("M")'), Event('np.random.weibull(1)','self.chCond("g0")')])
-#e.addCondition('g1',[Event('np.random.weibull(1)','self.division()')])
-e.addCondition('g0',[Event('np.random.weibull(1)','self.chCond("g1")')])
-e.addCondition('M',[Event('np.random.weibull(1)','self.division()')])
+
+# попробуем построить абстрактный гемопоез в парадигме клеточных состояний
+
+#стволовые клетки линии 1
+e.addCondition('s1',
+               [Event('np.random.weibull(1)','self.chCond("s1")'),
+                Event('np.random.weibull(1)','self.chCond("s2")')])
+                
+e.addCondition('s2',
+               [Event('np.random.weibull(1)','self.chCond("s2")'),
+                Event('np.random.weibull(1)','self.chCond("s3")')])
+
 e.setDefCond('g1')
 # Каждое событие описывается парой функций: функционал и результат события.
 # Формат: [Event('функция','результат'), ...]
@@ -64,7 +75,7 @@ e.setDefCond('g1')
 
 # 2. стоп-машина StopEvent(Time). Без такого события расчет длится бесконечно. Если клетки не элиминируют естественно. Удобен простотой вызова
 # e.
-StopEvent(9)
+StopEvent(4)
 # Блочная часть модели:
 # На входе весь граф блоков принимает dt от событийного куска, и производит перерасчет содержимого по формулам внутреннего (internal) и внешнего (transition) перехода. Под внешним переходом подразумевается количество переходящих в to узел графа. Хорошо бы, что бы небыло висячих концов  
 # addCompartment(self, name, internal, transition, to):

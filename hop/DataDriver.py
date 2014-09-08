@@ -35,6 +35,7 @@ from datetime import datetime
 from os.path import exists
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 #import os
 
@@ -383,7 +384,7 @@ class XMLDriver():
 # кроме того, надо уметь формировать CSV по заданным параметрам
 
 # интерфейсные (внутренние) функции
-    def plot(self, name, aprType = 'mean'):
+    def plot(self, name, aprType = 'mean', plotSymb = ''):
         """
         Функция должна возвращать матрицу Z в стиле матплотлиба
         """
@@ -395,14 +396,29 @@ class XMLDriver():
                 X[int(item.attrib['i'])] = item.attrib['x'] # ставим полученное значнеие на нужное место
                 data = eval(item.text)
                 Z[int(item.attrib['i'])] = data[name][aprType]
-            plt.plot(X,Z)
+            plt.plot(X,Z,plotSymb)
             plt.xlabel(self.Xvar)
             plt.ylabel(name)
             plt.show()
         elif self.meta.attrib.get('TaskType') == 'M':
-            pass
+            alldata = self.root.findall('.//item')
+            X = [None]*len(alldata)
+            Y = [None]*len(alldata)
+            Z = [[None]*len(alldata)]*len(alldata)
+            for item in alldata:
+                X[int(item.attrib['i'])] = item.attrib['x'] # ставим полученное значнеие на нужное место
+                Y[int(item.attrib['j'])] = item.attrib['y']
+                data = eval(item.text)
+                Z[int(item.attrib['i'])][int(item.attrib['j'])] = data[name][aprType]
+            XX, YY = np.meshgrid(X, Y)
+            ZZ = np.array(Z)
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            ax.plot_surface(XX, YY, ZZ)
+            # неизвестно, не надо ли как-то обрабатывать Z перед передачей в матплотлиб... Наппример тум же нумпаем. Попробуем-с.
+            plt.show()
         else:
-            raise Exception('Mistake in file (type of task not specified)')        
+            print('Mistake in file (type of task not specified)')        
         pass
         # возвращает матрицу, которая формируется из прочесываемых итемов. 
         # проверка на законченность вычислений
