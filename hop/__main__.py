@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 29 15:27:42 2014
+Replicative MetaObject Network Analyser (ReMONA)
+Система Анализа Репликативных МультиОбъектных Сетей (САРМОС)
 
-@author: russinow
+@author: russinow 
+ReMONA V.1.0
+http://russinow.me/
 """
 
 
@@ -21,7 +24,11 @@ except IndexError:
         #Если имя файла отсутствует, в качестве опций дальнейшей работы пользователю предлагается:
             #ввести имя файла (запускаются теже процедуры, что и при коротком вызове)
             #запустить командную строку Python с импортированной библиотекой HOP
-        yn = raw_input(""" Wecome to HOP. 
+        yn = raw_input(""" 
+          Wecome to ReMON Analyser
+=== Replicative MetaObject Network Analyser ===
+ - version 1.0
+ http://russinow.me/
 To download the experiment file enter its name (with full name if...) 
 to download interactive shell enter 'I'
 to exit enter 'X'""") 
@@ -35,15 +42,13 @@ to exit enter 'X'""")
         else:
                 filename = yn
 
-#try:
-#hop.
 load(filename)
-#except:
-#    pass
-#hop.
+
 start()
 
-#""" Добро пожаловать в HOP.
+#""" Добро пожаловать в ReMON Analyser
+# === Replicative MetaObject Network Analyser ===
+# Система Анализа Репликативных МультиОбъектных Сетей
 #    Для загрузке файла эксперимента введите его имя (с полным адресом, если ...)
 #    для загрузки интерактивного режима введите 'I'
 #    для выхода введите 'X'"""
