@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 08 18:18:59 2014
-
-@author: user
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 
 AOb.py -- Auxiliary Objects
 """

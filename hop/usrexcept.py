@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 26 12:38:15 2014
-
-@author: user
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 """
 
 def setScript(ExClass, s):

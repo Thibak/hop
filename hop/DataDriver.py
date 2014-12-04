@@ -8,16 +8,14 @@ http://russinow.me/
 """
 
 from lxml.builder import ElementMaker
-from lxml import etree #<-- вспомогательная функция для сериализации
+from lxml import etree # вспомогательная функция для сериализации
 from datetime import datetime
 from os.path import exists
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-#import os
 
-#from hop import mod_path
 mod_path = 'hop/models/'
 scr_path = 'hop/mkscr/'
 
@@ -30,7 +28,6 @@ class Y(minimal_function):
     def __getitem__(self,key):
         return self.__dict__[key]
     def __repr__(self):
-        #return 'Y:%s'%self.__dict__
         return str(self.__dict__)
     def __getattr__(self,attr):
         return None
@@ -43,7 +40,7 @@ class XMLDriver():
     def __init__(self, filename=None):
         self.Factory = ElementMaker()
         if filename == None:
-            pass # м.б. вызов new()
+            pass # в будущих версиях вызов new()
         else:
             self.open(filename)
     def __repr__(self):
@@ -121,7 +118,6 @@ class XMLDriver():
             filename = scr_path + filename
         if filename[-2:] != '.py':
             filename += '.py'
-        #print filename
         if exists(filename):
             self.meta.set('ScriptFileName', filename)
             self.save()
@@ -139,8 +135,6 @@ class XMLDriver():
         self.meta.append(sscript)
         self.save()
     def makeMatrix(self, Xvar, xstart, xstop, xstep, Yvar, ystart, ystop, ystep):
-        # матрица. Может передавать не матрицы, а диапазоны и шаги?
-        # что еще надо в матрице?
         XX = np.arange(xstart, xstop, xstep)
         YY = np.arange(ystart, ystop, ystep)
         if self.meta.attrib['status'] != 'Null':
@@ -150,8 +144,7 @@ class XMLDriver():
         self.meta.append(matrix)
         matrix.append(self.Factory.x(str(XX.tolist()), name = str(Xvar)))
         matrix.append(self.Factory.y(str(YY.tolist()), name = str(Yvar)))
-        # тут будет цикл, с makeTask 
-        #z = [[x[i][j]+y[i][j] for i in range(len(x))] for j in range(len(y))]
+
         for i in range(len(XX)):
             for j in range(len(YY)):
                 self.makeTask(i,j,XX[i][j],YY[i][j])
@@ -162,7 +155,6 @@ class XMLDriver():
         if self.meta.attrib['status'] != 'Null':
             print('Task already given')
             return
-            #raise Exception('Task already given')
         self.meta.set('TaskType', 'V')
         vec = self.Factory.vec()
         self.meta.append(vec)
@@ -193,8 +185,6 @@ class XMLDriver():
     def open(self, filename):
         if filename[-3:] != '.xml':
             filename += '.xml'
-#        print (os.getcwd())
-#        print(filename)
         self.filename = filename
         self.tree = etree.parse(filename)
         self.root = self.tree.getroot()
@@ -202,9 +192,7 @@ class XMLDriver():
         self.meta = self.root.find('.//meta')
         self.data = self.root.find('.//data')
         self.time = self.root.find('.//time')
-        # тут нужно извлекать все, дабы каждый раз не обращаться к хмлью
-        # ХОТЯ внимание, я этого не делаю для существующего без презакрытия. Что с этим елать? Переоткрывать? Не самый плохой вариант. А можно вынести в модуль renewStatus
-        # не самый лучший вариант, т.к. мы снова читаем хмль, Может быть стоит дважды прописать
+
         try: self.iterations = int(self.meta.attrib['iteration'])
         except KeyError: print('failed to load number of iterations')
         try: self.modelFN    = self.meta.attrib['modelFN']
@@ -227,63 +215,29 @@ class XMLDriver():
         except KeyError: print('failed to load task type')
         try: self.remain = len(self.root.findall('.//task'))
         except TypeError:  self.remain = 0
-        #
+        
 # -------- функции работы обработчика -----------
-    def LoadTask(self): #<-- фактически оболочка над итератором
+    def LoadTask(self): 
         """
-        ВАЖНО! Не забыть, что тут нужен трай, иначе в конце обработки будет вылет.
-        Хотя можно и делать проверку по прогрессу.
-        А можно реализовать ретурн 1/0 как индикатор загружено/нет
-        
-        ДОПОЛНИТЬ определителем типа задачи
+        оболочка над итератором
         """
-        # мы находим какой-то (любой) таск, и возвращаем словарь атрибутов? 
-        # нет, т.к. ООП, то метод меняет текущие параметры. Т.е. LoadTask
-        
+
         self.CT = self.root.find('.//task')
         if type(self.CT) == type(None):
             self.meta.set('status', 'complete')
             self.save()
             raise IndexError # попробовать выработку специфического ексепшена.
         self.Task = Y()
-#        <--------------- переделать таск в Y, тогда присвоение идет через гетатр
-        #self.Task = {}
-        #закомментирую, т.к. пробуем немного подругому:
-#        if self.meta.attrib.get('TaskType') == 'M':
-#            self.Task.TaskType = 'M'
-#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
-#            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
-#            self.Task.i = int(self.CT.attrib.get('i'))
-#            self.Task.j = int(self.CT.attrib.get('j'))
-#            self.Task.x = float(self.CT.attrib.get('x'))
-#            self.Task.y = float(self.CT.attrib.get('y'))
-#        elif self.meta.attrib.get('TaskType') == 'V':
-#            self.Task.TaskType = 'V'
-#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
-#            self.Task.i = int(self.CT.attrib.get('i'))
-#            self.Task.x = float(self.CT.attrib.get('x'))
-#        else:
-#            raise Exception('Mistake in file (type of task not specified)')
-        if self.TaskType == 'M':
-#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))
-#            self.Task.Yvar = str(self.root.find('.//y').attrib.get('name'))           
+        if self.TaskType == 'M':          
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.j = int(self.CT.attrib.get('j'))
             self.Task.x = float(self.CT.attrib.get('x'))
             self.Task.y = float(self.CT.attrib.get('y'))
-        elif self.TaskType == 'V':
-#            self.Task.TaskType = 'V'
-#            self.Task.Xvar = str(self.root.find('.//x').attrib.get('name'))           
+        elif self.TaskType == 'V':          
             self.Task.i = int(self.CT.attrib.get('i'))
             self.Task.x = float(self.CT.attrib.get('x'))
         else:
             raise Exception('Mistake in file (type of task not specified)')        
-        
-        
-        # мне не нравится такой способ, надо как-то экранировать эти атрибуты, но пусть будет так.
-        # хотя можно словарь сделать, как элементарный контейнер
-        #делаем подгрузку через try. Через сортировку того, что может
-        # перенес выше
         
     def loadConst(self):
         """
@@ -305,13 +259,8 @@ class XMLDriver():
         #raise Exception('Task already given')
         
     def writeData(self, data):
+        """ 
         """
-        вопросыЖ
-        1. Как затирать таски? -- очень просто, вызовом метода .clear()
-        2. что писать? пока стоит рабочая заглушка
-        3. определитель типа 
-        """
-        #<----------------- тут доделать записываемые параметры. и и жи достаются неправильно и надо еще что-то записывать. А если не матрица!?
         if self.TaskType == 'M':
             DI = self.Factory.item(str(data), i = str(self.Task.i), j = str(self.Task.j), x = str(self.Task.x), y = str(self.Task.y))
         elif self.TaskType == 'V':
@@ -321,7 +270,6 @@ class XMLDriver():
         self.data.append(DI)
         prnt = self.CT.getparent()
         prnt.remove(self.CT)
-        #self.CT.clear()
         self.meta.set('status', 'progress')
         self.save()
         
@@ -348,20 +296,20 @@ class XMLDriver():
         return str(self.meta.find('sscript').text)
         
 # -------- функции работы графического обработчика -------
-# Графический обработчик должен эмулировать все  функции, а на самом деле всего несколько для работы с матплотлибом. Мне надо делать 3-х мерные графики 
-# кроме того, надо уметь формировать CSV по заданным параметрам
+# Графический обработчик должен эмулировать все  функции, для работы с матплотлибом.
 
-# интерфейсные (внутренние) функции
     def plot(self, name, aprType = 'mean', plotSymb = ''):
         """
-        Функция должна возвращать матрицу Z в стиле матплотлиба
+        Запускает отрисовку указанной характеристики.
+        первый аргумент -- имя зависимой переменной
+        второй аргумент (по умолчанию 'mean')
         """
         if self.TaskType == 'V':
             alldata = self.root.findall('.//item')
             X = [None]*len(alldata)
             Z = [None]*len(alldata)
             for item in alldata:
-                X[int(item.attrib['i'])] = item.attrib['x'] # ставим полученное значнеие на нужное место
+                X[int(item.attrib['i'])] = item.attrib['x'] 
                 data = eval(item.text)
                 Z[int(item.attrib['i'])] = data[name][aprType]
             plt.plot(X,Z,plotSymb)
@@ -383,16 +331,11 @@ class XMLDriver():
             fig = plt.figure()
             ax = fig.gca(projection='3d')
             ax.plot_surface(XX, YY, ZZ)
-            # неизвестно, не надо ли как-то обрабатывать Z перед передачей в матплотлиб... Наппример тум же нумпаем. Попробуем-с.
             plt.show()
         else:
             print('Mistake in file (type of task not specified)')        
         pass
-        # возвращает матрицу, которая формируется из прочесываемых итемов. 
-        # проверка на законченность вычислений
-        
-        
-        
+
         
 class DataMachine:
     def __init__(self):
@@ -430,26 +373,19 @@ class DataMachine:
         Для скриптов интерфейс следующий:
         для получения данных используем matrix и vector, которые list и nested list
         для результатов используем data. дальше нужное имя
-        
-        В связи с форматом написать функцию извлечения данных getZ 40-ка строками выше
         """
+        # далее интерфейсы для монтекарловского скрипта
         for mtrname in self.names.list:
-            #<----------------------
-            # непонятно почему я не присваиваю matrix ни куда..
-            matrix = self.val[mtrname] # <-------- это и следующее нужно как интерфейс для монтекарловского скрипта
-            #print (mtrname + ' matr')
+            matrix = self.val[mtrname] 
             data = Y()
             exec(self.vscr)
-            self.data[mtrname] =  eval(str(data)) #eval() # что бы внутри хранились словари
-            # страшно корявая реализация, но пусть будет 
-            #  проблема в том, что внутри мы храни
-            
+            self.data[mtrname] =  eval(str(data)) 
         for vecname in self.names.float:
             vector = self.val[vecname]
-            #print (vecname + ' vect')
             data = Y()
             exec(self.sscr)  
-            self.data[vecname] = eval(str(data)) # eval() # что бы внутри хранились словари
+            self.data[vecname] = eval(str(data))
             
     def PushData(self,XMLi):
         XMLi.writeData(str(self.data))
+        

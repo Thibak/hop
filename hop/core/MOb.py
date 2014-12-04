@@ -1,58 +1,51 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 08 16:54:50 2014
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 
-@author: user
-
-MOb.py от Modell Objects
+MOb.py -- Modell Objects
 
 """
 
 import numpy as np
-import random
+import random # интерфейс для скриптинга
 from types import CodeType
 
 class AbstractCompartment():
     """
-    Содержит ли компартмент собственную историю??
-    Добавить можно всегда, потому пока нет.
-    Абстрактный компартмент, это количество клеток
+    Абстрактный компартмент, это количество объектов в данном состоянии
     методы доступа к изменению количества
     """
     n = 0  
     def __repr__(self):
         return str(self.n)
-    def addCell(self):
+    def addObject(self):
         self.n = self.n + 1
-    def remCell(self):
+    def remObject(self):
         self.n = self.n - 1        
     
-class SCC(AbstractCompartment): #, list):
+class SOC(AbstractCompartment): #, list):
     """
-    stem cells compartment
-
-    Отличие от абстракта     
-    Пока никакого. А если и не будет? 
-    Может наследовать от нее MCC, а сюда перенести весь функционал из абстракта
+    Singular Objects Compartment
     """
     vec = []
 #    def getQty(self):
 #        return len(self)
-#    def addCell(self, cell):
-#        super(StemCompartment, self).append(cell)
-#    def removeCell(self, cell):
+#    def addObject(self, Object):
+#        super(StemCompartment, self).append(Object)
+#    def removeObject(self, Object):
        # try:
-#            super(StemCompartment, self).remove(cell)
+#            super(StemCompartment, self).remove(Object)
        # except:
        #    pass
         
-class MCC(AbstractCompartment):
+class MOC(AbstractCompartment):
     """
-    mature celss compartment
-    1. Прямо тут будем хранить не только информацию о количестве но и
-    2. функции изменения и переходов
+    Mass Object Compartment
+    1. Общая характеристика компартмента
+    2. Команды для построения модели (модификаторы конфигурации)
     """
-    # по большому счету совершенно не обязательно тут это определять, но пусть будет для наглядности
     def __init__(self, internal, transition, to):
         self.internal = compile(internal, '<string>', 'eval')
         self.transition = compile(transition, '<string>', 'eval') 
@@ -60,17 +53,16 @@ class MCC(AbstractCompartment):
     
     def step(self, dt):
         """
-        internal -- должно быть выражением с использованием N как предыдущего значения и dt как дельты времени
         """
-        N = self.n #<--- сильно не факт, что будет работать! Эксперименты показывают, что будет, т.к. используется тот неймспейс, в котором запущено.
-        self.n = eval(self.internal) # умно запускаю внутренний пересчет при вызове. Но! Умно ли он происходит до расчета перехода? Думаю, что нет. Надо создавать буферное значение. А оказывается я все уже сделал!
-        return eval(self.transition)
+        N = self.n # локальное значение
+        self.n = eval(self.internal) # расчитываем внутреннее количество
+        return eval(self.transition) # возвращаем dt
     def add(self, intg):
         self.n += intg
     
     
 #--------------------------------------------------
-# клетки    
+   
     
 class EventContainer:
     """
@@ -92,23 +84,25 @@ class EventContainer:
 
     def SetEventTime(self, Time):
         """
-        Инфраструктурная функция. Запилить ее.
+        Инфраструктурная функция, задает время.
         """
         self.TimeWhen = Time
+        
     def go(self):
+        """
+        Запуск выполнения запланированной строки события
+        """
         exec(self.st)
         return 0
     
     
-class cell(EventContainer):
-    """ Класс клетка.
-        Каждая клетка существует внутри некоторого компартмента. 
-        Важно следить за тем, что бы небыло утечки клеток.
-        Компартмент-хендлер -- пустой класс-идентификатор поведения для клеток
-        По большому счету, нам не важно какие клетки содержатся в компартменте. 
-        Т.к. от компартмента нам нужно только знание содержимого. 
-        Хотя мы будем делать самостоятельных наследников
-        Храним данные о состоянии клетки в текущий момент.        
+class Object(EventContainer):
+    """ Класс Объект.
+        Каждый объект существует внутри некоторого компартмента. 
+        Компартмент-хендлер -- пустой класс-идентификатор поведения для Объектов
+        По большому счету, нам не важно какие Объекты содержатся в компартменте, 
+        Т.к. от компартмента нам нужно только знание содержимого (количества). 
+        Данные о состоянии Объекта в текущий момент.        
         - SetEventTime() -- кладем время до события
         - EventTime() -- время до события
         Умеет
@@ -123,45 +117,31 @@ class cell(EventContainer):
             self.CureCond = self.defCon
         else:
             self.CureCond = cond
-        self.SCC[self.CureCond].addCell()
+        self.SOC[self.CureCond].addObject()
         self.GenEv()
         
     def GenEv(self):
         """
         по справочнику определяем множество формул для данного состояния
-        self.SCC[self.CureCond] -- возвращает какой-то объект, из которого мы получаем множество формул
+        self.SOC[self.CureCond] -- возвращает какой-то объект, из которого мы получаем множество формул
         """
-        #разыгрывем время до ближайших событий
-#        act.append(self.s['l1']*numpy.random.weibull(self.s['a1'])) 
-#        act.append(self.s['l2']*numpy.random.weibull(self.s['a2']))
-#        i = numpy.argmin(act) #определяем какое из событий таки ближайшее
-
         # Достаём формулы
         # выкидываем время до события по формулам  
              
         times = []
-        for i in range(len(self.SCC[self.CureCond].vec)):
-            times.append(eval(self.SCC[self.CureCond].vec[i].fun))
+        for i in range(len(self.SOC[self.CureCond].vec)):
+            times.append(eval(self.SOC[self.CureCond].vec[i].fun))
         # определяем наименьшую
         # определяем соответствие событию
         # Ставим идентификатор события
         self.ev = np.argmin(times)
         # записываем таймер, записываем время ЧЕРЕЗ КОТОРОЕ ПРОИЗОЙДЕТ СОБЫТИЕ
-        self.Engine.ES.MakeEvent(self, eval(self.SCC[self.CureCond].vec[self.ev].fun))        
-        
+        self.Engine.ES.MakeEvent(self, eval(self.SOC[self.CureCond].vec[self.ev].fun))        
 
-
-#    def ChComp(self, fromC, toC):
-#        """
-#        Смена компартмента
-#        """
-#        fromC.removeCell(self)
-#        toC.addCell(self)
-
-# Инфраструктура событий
-# События м.б. продуцирующими и дегенративными
-# продуцирующие события запускают в конце метод-генератор нового события
-# дегенративные этого не делают, в любом случае удаляются из текущего компартмента и, возможно что-то еще
+    # Инфраструктура событий
+    # События м.б. продуцирующими и дегенеративными
+    # продуцирующие события запускают в конце метод-генератор нового события
+    # дегенративные этого не делают, в любом случае удаляются из текущего компартмента и, возможно что-то еще
 
     def sleep(self):
         """
@@ -169,62 +149,58 @@ class cell(EventContainer):
         """
         self.GenEv()
         
-    def division(self):
+    def divide(self):
         """
-        Деление от материнской клетки наследует компартмент, это важно.
-        Тут два момента
-        1. Вопрос об ассиметричном делении. Вообще-то нет...
-        2. Перегенерируем ли self?
+        Деление Объекта наследует компартмент (происходит в том же компартменте).
         """
-        cell(self.CureCond)
+        Object(self.CureCond)
         self.GenEv()
     
-    
-    def assymDivision(self, name = None):
+    def assymDivide(self, cond = None):
         """
+        Ассиметричное деление
         """
-        cell(name)
+        Object(cond)
         self.GenEv()
     
-    def differentiation(self, cmprt):
+    def reconfigurate(self, cmprt):
         """
-        Получается, что дифференцировка совпадает с переходом в другой компартмент
+        Смена конфигурации, в парадигме РМС, или изменение состояния объекта.
+        Происходит через удаление текущего Объекта и создание нового в новом компартменте.
         """ 
-        self.SCC[self.CureCond].remCell()
+        self.SOC[self.CureCond].remObject()
         self.CureCond = cmprt
-        self.SCC[self.CureCond].addCell()
+        self.SOC[self.CureCond].addObject()
         self.GenEv()
 
 
-    def apoptosys(self):
+    def destroy(self):
         """
-        Клетка самоудаляется из всех списков, и вычитает значение из компартмента. 
-        По хорошему объект должен удалится сам
+        Объект самоудаляется из всех списков, и вычитает значение из компартмента. 
         """        
-        self.SCC[self.CureCond].remCell()
+        self.SOC[self.CureCond].remObject()
     
-    def toMature(self, name):
-        self.MCC[name].addCell()
-
-    def chCond(self, cond):
+    def toMOC(self, name):
         """
-        Простой вызов differentiation(cond)
-        Действие одинаковое, но по разному понимаемый смысл "состояния". Как состояние клетки или как степень дифференцировки
+        Добавление в МОС
         """
-        self.differentiation(cond)      
+        self.MOC[name].addObject()     
         
     def test(self,s):
+        """
+        Тестовая функция, выводит сообщение s
+        """
         print('get -- > '+s)
-#----------------------------------------------------------   
-   
+        
+#----------------------------------------------------------      
 
     def go(self):
         """
         Выполнить действие.
-        Просто достаем строку из справочника по текущему состоянию и записанному событию
+        Достаем строку из справочника по текущему состоянию и записанному событию
         Возвращаем дельту времени для запуска итератора интегральных компартментов
         """
-        exec(self.SCC[self.CureCond].vec[self.ev].res)
+        exec(self.SOC[self.CureCond].vec[self.ev].res)
         return self.Engine.ES.deltaT
 
 class StopEvent(EventContainer):
@@ -233,6 +209,6 @@ class StopEvent(EventContainer):
     """
     def go(self):
         raise AttributeError
-    # какой-то бессмысленный метод, каменчу
+    # Запасной метод, реализуется через простой вызов смены словаря
     #def TurnOnFeedback(self,name):
     #    self.Engine.FB.changeDict(name)

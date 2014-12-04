@@ -3,7 +3,7 @@
 Replicative MetaObject Network Analyser (ReMONA)
 Система Анализа Репликативных МультиОбъектных Сетей (САРМОС)
 
-@author: russinow 
+@author: russinow m a
 ReMONA V.1.0
 http://russinow.me/
 """

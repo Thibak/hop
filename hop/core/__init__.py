@@ -2,19 +2,19 @@
 """
 Created on Tue Jul 29 15:29:06 2014
 
-@author: russinow
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 
 Ядро расчетов. 
-- 1. Сервер событий. Не объект, как ни странно.
-
 
 """
 import datetime
 
 from MOb import EventContainer
-from MOb import cell
-from MOb import SCC
-from MOb import MCC
+from MOb import Object
+from MOb import SOC
+from MOb import MOC
 from AOb import EventServer
 from AOb import FeedBackSever, DataCollector
 from hop.DataDriver import Y, minimal_function
@@ -30,17 +30,17 @@ from MOb import StopEvent
 
 class Engine:
     """
-    
+    Движок расчетов
     """
     const = Y()
     def __init__(self):
         # создаем ссылку на класс клеток внутри Движка
-        self.cell = cell
+        self.Object = Object
         EventServer.Engine = self
         FeedBackSever.Engine = self
         EventContainer.Engine = self
         DataCollector.Engine = self
-        # self.cell.Engine = self <-- в этой строке нет необходимости, т.к. есть предыдущая
+        # self.Object.Engine = self <-- в этой строке нет необходимости, т.к. есть предыдущая
         #self.EventContainer = EventContainer
         # Добавляем пустой словарь для состояний клетки (новая формация для структуры)
         # Создаем экземпляр Сервера Событий
@@ -50,13 +50,13 @@ class Engine:
         self.DC.addDataPoint('calctime', 's'),
         #self.FB.Engine = self
         #Закладываем ссылку на сервер событий с целью прямой закладки
-        #self.cell.ES = self.ES  
-        #изменено, т.к. cell наследуется от EventContainer
+        #self.Object.ES = self.ES  
+        #изменено, т.к. Object наследуется от EventContainer
         # 
-        self.SCC = {}
-        self.cell.SCC = self.SCC        
-        self.MCC = {}
-        self.cell.MCC = self.MCC 
+        self.SOC = {}
+        self.Object.SOC = self.SOC        
+        self.MOC = {}
+        self.Object.MOC = self.MOC 
         #Куммулятивные показатели
         self.TimeLine = []
     
@@ -72,14 +72,14 @@ class Engine:
         Для внутренних обработок достаточно пары имяСостояния-индекс. Я никак не буду оперировать индексом кроме как для хранения на этапе выполнения
         """
 # <-- Дописать проверку
-        self.SCC[name] = SCC()
-        self.SCC[name].vec = vec
+        self.SOC[name] = SOC()
+        self.SOC[name].vec = vec
         # слоты для оценки количества клеток в состояниях
         
         
     def setDefCond(self, name):
-        if name in self.SCC:
-            self.cell.defCon = name
+        if name in self.SOC:
+            self.Object.defCon = name
         else:
             raise Exception('setDefCond: Нет такого состояния')
 
@@ -90,7 +90,7 @@ class Engine:
         transition -- функция от N и dt перехода
         to -- куда??
         """
-        self.MCC[name] = MCC(internal, transition, to)
+        self.MOC[name] = MOC(internal, transition, to)
 
     def start(self):
         """
@@ -101,16 +101,16 @@ class Engine:
         # создаем первую клетку, ставим состояние по умолчанию
         # как ни странно, ни чему не надо ее присваивать, Т.к. клетка делает все сама.
         st = datetime.datetime.now()
-        self.cell() 
+        self.Object() 
               
         #Запускаем итератор времени.
         #запускаем генератор события (получаем в ответ дельту времени)
         while True:
-            cell = self.ES.GetEvent()
-            #print(type(cell))
+            Object = self.ES.GetEvent()
+            #print(type(Object))
             #хитрость в том, что когда заканчивается очередь, возвращается None, который не имеет атрибута .go, при попытки его запроса генерируется ошибка AttributeError
             try:
-                dt = cell.go() # генератор события                
+                dt = Object.go() # генератор события                
             except AttributeError:     
                 self.TimeLine.append(self.ES.deltaT)
                 break
@@ -148,8 +148,8 @@ class Engine:
             # end
             self.TimeLine.append(dt)
             #запускаем переббор всех интегральных компартментов
-            for cmprt in self.MCC:
-                self.MCC[self.MCC[cmprt].to].add(self.MCC[cmprt].step(dt))
+            for cmprt in self.MOC:
+                self.MOC[self.MOC[cmprt].to].add(self.MOC[cmprt].step(dt))
             exec(self.taktalSlot)       
         exec(self.DC.slot.final)
         et = datetime.datetime.now()
