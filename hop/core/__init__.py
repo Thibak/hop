@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 29 15:29:06 2014
-
 @author: russinow m a
 ReMONA V.1.0
 http://russinow.me/
@@ -34,44 +32,39 @@ class Engine:
     """
     const = Y()
     def __init__(self):
-        # создаем ссылку на класс клеток внутри Движка
+        # создаем ссылку на класс Объектов внутри Движка
         self.Object = Object
         EventServer.Engine = self
         FeedBackSever.Engine = self
         EventContainer.Engine = self
         DataCollector.Engine = self
-        # self.Object.Engine = self <-- в этой строке нет необходимости, т.к. есть предыдущая
-        #self.EventContainer = EventContainer
-        # Добавляем пустой словарь для состояний клетки (новая формация для структуры)
+        
+        # Добавляем пустой словарь для состояний Объектов (новая формация для структуры)
         # Создаем экземпляр Сервера Событий
         self.ES = EventServer()
         self.FB = FeedBackSever()
         self.DC = DataCollector()
         self.DC.addDataPoint('calctime', 's'),
-        #self.FB.Engine = self
-        #Закладываем ссылку на сервер событий с целью прямой закладки
-        #self.Object.ES = self.ES  
-        #изменено, т.к. Object наследуется от EventContainer
-        # 
+
         self.SOC = {}
         self.Object.SOC = self.SOC        
         self.MOC = {}
         self.Object.MOC = self.MOC 
+        
         #Куммулятивные показатели
         self.TimeLine = []
     
-        #Хитрый пустой слот, который мы запиливаем как заглушку тактовому сборщику данных.
-        self.taktalSlot = compile('','<string>','exec')
-        #compile('','<string>','exec')        
+        #пустой слот -- заглушку тактовому сборщику данных.
+        self.taktalSlot = compile('','<string>','exec')     
 
     def addCondition(self, name, vec):
         """
         Формат словаря --
         Имя состояния : вектор объектов-дуплетов -- Ивентов (namedtuple)
         индекс: функция-исход
-        Для внутренних обработок достаточно пары имяСостояния-индекс. Я никак не буду оперировать индексом кроме как для хранения на этапе выполнения
+        Для внутренних обработок достаточно пары имяСостояния-индекс. 
         """
-# <-- Дописать проверку
+
         self.SOC[name] = SOC()
         self.SOC[name].vec = vec
         # слоты для оценки количества клеток в состояниях
@@ -81,7 +74,7 @@ class Engine:
         if name in self.SOC:
             self.Object.defCon = name
         else:
-            raise Exception('setDefCond: Нет такого состояния')
+            raise Exception('setDefCond: no such Condition')
 
     def addCompartment(self, name, internal, transition, to):
         """
@@ -98,8 +91,7 @@ class Engine:
         записываем длину шага времени
         запускаем объекты принимающие шаг времени.   
         """
-        # создаем первую клетку, ставим состояние по умолчанию
-        # как ни странно, ни чему не надо ее присваивать, Т.к. клетка делает все сама.
+        # создаем первый объект, ставим состояние по умолчанию
         st = datetime.datetime.now()
         self.Object() 
               
@@ -107,7 +99,6 @@ class Engine:
         #запускаем генератор события (получаем в ответ дельту времени)
         while True:
             Object = self.ES.GetEvent()
-            #print(type(Object))
             #хитрость в том, что когда заканчивается очередь, возвращается None, который не имеет атрибута .go, при попытки его запроса генерируется ошибка AttributeError
             try:
                 dt = Object.go() # генератор события                

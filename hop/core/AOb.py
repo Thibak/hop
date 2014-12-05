@@ -7,18 +7,14 @@ http://russinow.me/
 AOb.py -- Auxiliary Objects
 """
 from operator import attrgetter
-#from collections import namedtuple
+
 from numpy import arange
 
 from MOb import EventContainer
 from hop.DataDriver import Y
 
-# пока впишу сюда
-
-
-
 # Наследник встроенного типа list дополненный автоматической сортировкой по признаку TimeWhen. 
-# дополнить проверкой типа бы...
+
 class EStack(list):
     def push(self, element):
        super(EStack, self).append(element)
@@ -44,25 +40,18 @@ class EventServer():
         Who.SetEventTime(self.CurTime + TimeTo)
         self.eventsL.push(Who)    
 
-#Event = namedtuple ('Event', 'fun res')
 class Event:
     def __init__(self, function, result):
         self.fun = compile(function, '<string>', 'eval')
         self.res = compile(result,   '<string>', 'exec')
 
-# какой-то непонятный рудимент, который я ВРОДЕбы переписал, но пока оставим, вдруг нет
-#Compartment = namedtuple ('Compartment', 'int tran')
 
 class FeedBackSever:
     """
     Сервер обратных связей. Основная необходимость в его создании, это преобразование или подмена значений.
-    М.б. там распологаются функции выработки, наработки, накопления, дегродации белковых факторов
-    
-    Идея пересчитывать факторы только при обращении.
-    
-    Пока словарь словарей слотов по именам. 
-    
-    Пока обращение к частям модели через self.engine....
+    Перерасчет факторов только при обращении.
+    Словарь словарей слотов по именам. 
+    Обращение к частям модели через self.engine.
     
     """
     def __init__(self, name = 'default', di = {}):    
@@ -74,7 +63,6 @@ class FeedBackSever:
         
     def addDict(self, name, di = {}):
         """
-        Можно сразу словарь запузыривать, со слотами
         """
         cultivate_dict = {}
         for item in di:
@@ -111,13 +99,11 @@ class DataCollector:
         self.addSlot('taktal', '')
     # функции первого уровня    
     def addDataPoint(self, p, typeOf = 's'):
-        #if type(p) == StringType:
+
         if typeOf == 'v':
             self.data.__dict__[p] = list()
         else: self.data.__dict__[p] = float()
-        
-        #if type(p) == ListType:
-        #    self.data.__dict__.update(dict.fromkeys(p))
+
     def addSlot(self, name, command):
         # в команде можем использовать self.data.имя ранее определенной точки входа данных 
         compiled_command = compile(command, '<string>', 'exec')
@@ -134,9 +120,6 @@ class DataCollector:
         self.addSlot('taktal', s)        
         self.Engine.taktalSlot = self.slot.taktal
         
-    #def makeEventCollector(self):#событийный
-     #   pass
-        # пожалуй пока не буду это вообще реализовывать
     def getVal(self,name):
         return(self.data.__dict__[name])
     def dict(self):

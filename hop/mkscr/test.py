@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug 30 09:05:02 2014
-
-@author: user
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 """
 
 vscript =\

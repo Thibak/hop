@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-@author: russinow
+@author: russinow m a
+ReMONA V.1.0
+http://russinow.me/
 """
 from core import Engine
 from core.MOb import StopEvent

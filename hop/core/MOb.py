@@ -25,7 +25,7 @@ class AbstractCompartment():
     def remObject(self):
         self.n = self.n - 1        
     
-class SOC(AbstractCompartment): #, list):
+class SOC(AbstractCompartment):
     """
     Singular Objects Compartment
     """
@@ -105,11 +105,6 @@ class Object(EventContainer):
         Данные о состоянии Объекта в текущий момент.        
         - SetEventTime() -- кладем время до события
         - EventTime() -- время до события
-        Умеет
-          выдавать решение на следующую итерацию:
-              делится,
-              умирать (и вот вопрос, что с ней происходит, когда она умирает)
-тут немного о Вейбуле и рисовании http://stackoverflow.com/questions/17481672/fitting-a-weibull-distribution-using-scipy          
           
           """
     def __init__(self, cond = None):
@@ -122,7 +117,7 @@ class Object(EventContainer):
         
     def GenEv(self):
         """
-        по справочнику определяем множество формул для данного состояния
+        по справочнику определяется множество формул для данного состояния
         self.SOC[self.CureCond] -- возвращает какой-то объект, из которого мы получаем множество формул
         """
         # Достаём формулы
